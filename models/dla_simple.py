@@ -1,4 +1,4 @@
-'''Simplified version of DLA in PyTorch.
+"""Simplified version of DLA in PyTorch.
 
 Note this implementation is not identical to the original paper version.
 But it seems works fine.
@@ -7,7 +7,7 @@ See dla.py for the original paper version.
 
 Reference:
     Deep Layer Aggregation. https://arxiv.org/abs/1707.06484
-'''
+"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -26,11 +26,11 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != self.expansion*planes:
+        if stride != 1 or in_planes != self.expansion * planes:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, self.expansion*planes,
+                nn.Conv2d(in_planes, self.expansion * planes,
                           kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(self.expansion*planes)
+                nn.BatchNorm2d(self.expansion * planes)
             )
 
     def forward(self, x):
@@ -58,15 +58,15 @@ class Root(nn.Module):
 class Tree(nn.Module):
     def __init__(self, block, in_channels, out_channels, level=1, stride=1):
         super(Tree, self).__init__()
-        self.root = Root(2*out_channels, out_channels)
+        self.root = Root(2 * out_channels, out_channels)
         if level == 1:
             self.left_tree = block(in_channels, out_channels, stride=stride)
             self.right_tree = block(out_channels, out_channels, stride=1)
         else:
             self.left_tree = Tree(block, in_channels,
-                                  out_channels, level=level-1, stride=stride)
+                                  out_channels, level=level - 1, stride=stride)
             self.right_tree = Tree(block, out_channels,
-                                   out_channels, level=level-1, stride=1)
+                                   out_channels, level=level - 1, stride=1)
 
     def forward(self, x):
         out1 = self.left_tree(x)
@@ -76,7 +76,7 @@ class Tree(nn.Module):
 
 
 class SimpleDLA(nn.Module):
-    def __init__(self, block=BasicBlock, num_classes=10):
+    def __init__(self, block=BasicBlock, num_classes=2):
         super(SimpleDLA, self).__init__()
         self.base = nn.Sequential(
             nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False),
@@ -96,11 +96,11 @@ class SimpleDLA(nn.Module):
             nn.ReLU(True)
         )
 
-        self.layer3 = Tree(block,  32,  64, level=1, stride=1)
-        self.layer4 = Tree(block,  64, 128, level=2, stride=2)
+        self.layer3 = Tree(block, 32, 64, level=1, stride=1)
+        self.layer4 = Tree(block, 64, 128, level=2, stride=2)
         self.layer5 = Tree(block, 128, 256, level=2, stride=2)
         self.layer6 = Tree(block, 256, 512, level=1, stride=2)
-        self.linear = nn.Linear(512, num_classes)
+        self.linear = nn.Linear(1536, num_classes)
 
     def forward(self, x):
         out = self.base(x)
@@ -110,9 +110,31 @@ class SimpleDLA(nn.Module):
         out = self.layer4(out)
         out = self.layer5(out)
         out = self.layer6(out)
-        out = F.avg_pool2d(out, 4)
+        out = F.avg_pool2d(out, 8)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
+        # print("*******************************************")
+        # out = self.base(x)
+        # print("out = base(out):", out.shape)
+        # out = self.layer1(out)
+        # print("out = self.layer1(out):", out.shape)
+        # out = self.layer2(out)
+        # print("out = self.layer2(out):", out.shape)
+        # out = self.layer3(out)
+        # print("out = self.layer3(out):", out.shape)
+        # out = self.layer4(out)
+        # print("out = self.layer4(out):", out.shape)
+        # out = self.layer5(out)
+        # print("out = self.layer5(out):", out.shape)
+        # out = self.layer6(out)
+        # print("out = self.layer6(out):", out.shape)
+        # out = F.avg_pool2d(out, 8)
+        # print("out = F.avg_pool2d(out):", out.shape)
+        # out = out.view(out.size(0), -1)
+        # print("out = out.view(out.size(0), -1):", out.shape)
+        # out = self.linear(out)
+        # print("out = linear(out):", out.shape)
+        # print("______________________________")
         return out
 
 
