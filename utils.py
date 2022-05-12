@@ -90,7 +90,6 @@ def progress_bar(current, total, msg=None):
     for i in range(term_width - int(TOTAL_BAR_LENGTH / 2) + 2):
         sys.stdout.write('\b')
     sys.stdout.write(' %d/%d ' % (current + 1, total))
-
     if current < total - 1:
         sys.stdout.write('\r')
     else:

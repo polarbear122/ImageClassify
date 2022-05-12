@@ -11,6 +11,7 @@ import torchvision.transforms as transforms
 import os
 import argparse
 
+from log_config.log import logger as Log
 from models import *
 from utils import progress_bar
 from dataset.generate_my_dataset import generate_dataset
@@ -59,7 +60,8 @@ def test(__epoch):
 
             progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                          % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
-
+        Log.info("Epoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
+                 (__epoch, test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
     # Save checkpoint.
     acc = 100. * correct / total
     if acc > best_acc:
@@ -71,15 +73,17 @@ def test(__epoch):
         }
         if not os.path.isdir('checkpoint'):
             os.mkdir('checkpoint')
-        torch.save(state, './checkpoint/ckpt.pth')
+        torch.save(state, 'checkpoint/ckpt_update.pth')
+        torch.save(state, 'checkpoint/ckpt' + str(__epoch) + '.pth')
         best_acc = acc
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
-    parser.add_argument('--resume', '-r', action='store_true',
-                        help='resume from checkpoint')
+    # parser.add_argument('--resume', '-r', action='store_true',
+    #                     help='resume from checkpoint')
+    # parser.add_argument('--restart', action='restart', help='restart train')
     args = parser.parse_args()
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -88,33 +92,9 @@ if __name__ == "__main__":
 
     # Data
     print('==> Preparing data..')
-    # transform_train = transforms.Compose([
-    #     transforms.RandomCrop(32, padding=4),
-    #     transforms.RandomHorizontalFlip(),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    # ])
-    #
-    # transform_test = transforms.Compose([
-    #     transforms.ToTensor(),
-    #     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    # ])
-    #
-    # train_set = torchvision.datasets.CIFAR10(
-    #     root='./data', train=True, download=True, transform=transform_train)
-    # train_loader = torch.utils.data.DataLoader(
-    #     train_set, batch_size=128, shuffle=True, num_workers=2)
-    #
-    # testset = torchvision.datasets.CIFAR10(
-    #     root='./data', train=False, download=True, transform=transform_test)
-    # testloader = torch.utils.data.DataLoader(
-    #     testset, batch_size=100, shuffle=False, num_workers=2)
 
-    # 此处修改训练数据集 todo
+    # 此处修改训练数据集
     train_loader, test_loader = generate_dataset()
-    print("train_loader", train_loader)
-    classes = ('plane', 'car', 'bird', 'cat', 'deer',
-               'dog', 'frog', 'horse', 'ship', 'truck')
 
     # Model
     print('==> Building model..')
@@ -137,8 +117,8 @@ if __name__ == "__main__":
     if device == 'cuda':
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
-
-    if args.resume:
+    need_restart = True
+    if need_restart is False:
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
         assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
@@ -154,5 +134,6 @@ if __name__ == "__main__":
 
     for epoch in range(start_epoch, start_epoch + 200):
         train(epoch)
-        test(epoch)
+        if epoch % 10 == 0:
+            test(epoch)
         scheduler.step()

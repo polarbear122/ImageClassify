@@ -22,7 +22,7 @@ def generate_txt(__dir_path, __save_path):
                 # print("label_arr[label_id]:", label_arr[label_id], label_id)
                 img_label = int(label_arr[0][label_id])
                 label_id += 1
-                if i % 10 == 5:
+                if i % 10 == 2 or i % 10 == 9 or i % 10 == 7 or i % 10 == 6:
                     test_txt.write(img_path + ' ' + str(img_label) + '\n')
                 else:
                     train_txt.write(img_path + ' ' + str(img_label) + '\n')

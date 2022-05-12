@@ -10,11 +10,14 @@ from PIL import Image
 import numpy as np
 import torch.optim as optim
 import os
+from log_config.log import logger as Log
 
 
 # 定义读取文件的格式
 def default_loader(path):
-    return Image.open(path).convert('RGB')
+    img = Image.open(path).convert('RGB')
+    img = img.resize((20, 50), Image.ANTIALIAS)
+    return img
 
 
 # 首先继承上面的dataset类。然后在__init__()方法中得到图像的路径，然后将图像路径组成一个数组，这样在__getitim__()中就可以直接读取：
@@ -55,23 +58,25 @@ def generate_dataset():
     # 根据自己定义的那个MyDataset来创建数据集！注意是数据集！而不是loader迭代器
     # *********************************************数据集读取完毕***************************
     # 图像的初始化操作
-    train_transforms = transforms.Compose([
-        transforms.RandomResizedCrop((227, 227)),
-        transforms.ToTensor(),
-    ])
-    text_transforms = transforms.Compose([
-        transforms.RandomResizedCrop((227, 227)),
-        transforms.ToTensor(),
-    ])
+    # train_transforms = transforms.Compose([
+    #     transforms.RandomResizedCrop((227, 227)),
+    #     transforms.ToTensor(),
+    # ])
+    # text_transforms = transforms.Compose([
+    #     transforms.RandomResizedCrop((227, 227)),
+    #     transforms.ToTensor(),
+    # ])
 
     # 数据集加载方式设置
     train_data = MyDataset(txt=root + 'train.txt', transform=transforms.ToTensor())
     test_data = MyDataset(txt=root + 'test.txt', transform=transforms.ToTensor())
     # 然后就是调用DataLoader和刚刚创建的数据集，来创建dataloader，这里提一句，loader的长度是有多少个batch，所以和batch_size有关
-    train_loader = DataLoader(dataset=train_data, batch_size=8, shuffle=True, num_workers=4)
-    test_loader = DataLoader(dataset=test_data, batch_size=8, shuffle=False, num_workers=4)
+    train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True, num_workers=4)
+    test_loader = DataLoader(dataset=test_data, batch_size=32, shuffle=False, num_workers=4)
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))
+    Log.info('num_of_trainData:', len(train_data))
+    Log.info('num_of_testData:', len(test_data))
     return train_loader, test_loader
 
 
