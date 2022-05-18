@@ -18,16 +18,16 @@ from dataset.generate_my_dataset import generate_dataset
 
 
 # Training
-def train(__epoch):
+def train(__epoch, __train_loader, __net):
     print('\nEpoch: %d' % __epoch)
-    net.train()
+    __net.train()
     train_loss = 0
     correct = 0
     total = 0
-    for batch_idx, (inputs, targets) in enumerate(train_loader):
+    for batch_idx, (inputs, targets) in enumerate(__train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
-        outputs = net(inputs)
+        outputs = __net(inputs)
         loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
@@ -37,20 +37,20 @@ def train(__epoch):
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
 
-        progress_bar(batch_idx, len(train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+        progress_bar(batch_idx, len(__train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
 
 
-def test(__epoch):
+def test(__epoch, __test_loader, __net):
     global best_acc
-    net.eval()
+    __net.eval()
     test_loss = 0
     correct = 0
     total = 0
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(test_loader):
+        for batch_idx, (inputs, targets) in enumerate(__test_loader):
             inputs, targets = inputs.to(device), targets.to(device)
-            outputs = net(inputs)
+            outputs = __net(inputs)
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
@@ -58,27 +58,28 @@ def test(__epoch):
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
 
-            progress_bar(batch_idx, len(test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+            progress_bar(batch_idx, len(__test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                          % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
         Log.info("Epoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
                  (__epoch, test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
     # Save checkpoint.
+    print('Saving..')
     acc = 100. * correct / total
+    state = {
+        'net'  : __net.state_dict(),
+        'acc'  : acc,
+        'epoch': __epoch,
+    }
+    if not os.path.isdir(ck_path):
+        os.mkdir(ck_path)
+    torch.save(state, ck_path + 'ckpt_update.pth')
     if acc > best_acc:
-        print('Saving..')
-        state = {
-            'net'  : net.state_dict(),
-            'acc'  : acc,
-            'epoch': __epoch,
-        }
-        if not os.path.isdir('checkpoint'):
-            os.mkdir('checkpoint')
-        torch.save(state, 'checkpoint/ckpt_update.pth')
-        torch.save(state, 'checkpoint/ckpt' + str(__epoch) + '.pth')
+        torch.save(state, ck_path + 'ckpt' + str(__epoch) + '.pth')
         best_acc = acc
 
 
 if __name__ == "__main__":
+    ck_path = "checkpoint/ResNet18/"
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
     # parser.add_argument('--resume', '-r', action='store_true',
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     # Model
     print('==> Building model..')
     # net = VGG('VGG19')
-    # net = ResNet18()
+    net = ResNet18()
     # net = PreActResNet18()
     # net = GoogLeNet()
     # net = DenseNet121()
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     # net = ShuffleNetV2(1)
     # net = EfficientNetB0()
     # net = RegNetX_200MF()
-    net = SimpleDLA()
+    # net = SimpleDLA()
     net = net.to(device)
     if device == 'cuda':
         net = torch.nn.DataParallel(net)
@@ -121,8 +122,8 @@ if __name__ == "__main__":
     if need_restart is False:
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
-        assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-        checkpoint = torch.load('./checkpoint/ckpt.pth')
+        assert os.path.isdir(ck_path), 'Error: no checkpoint directory found!'
+        checkpoint = torch.load(ck_path + 'ckpt_update.pth')
         net.load_state_dict(checkpoint['net'])
         best_acc = checkpoint['acc']
         start_epoch = checkpoint['epoch']
@@ -133,7 +134,6 @@ if __name__ == "__main__":
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
     for epoch in range(start_epoch, start_epoch + 200):
-        train(epoch)
-        if epoch % 10 == 0:
-            test(epoch)
+        train(epoch, train_loader, net)
+        test(epoch, test_loader, net)
         scheduler.step()

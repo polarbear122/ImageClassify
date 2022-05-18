@@ -9,7 +9,7 @@ def generate_txt(__dir_path, __save_path):
     test_txt = open(__save_path + '/test.txt', 'a')
     i = 1
     # 遍历每个子文件夹
-    for video_id in range(1, 347):
+    for video_id in range(1, 30):
         try:
             label_arr = pd.read_csv(label_path + "label" + str(video_id) + ".csv", header=None, sep=',',
                                     encoding='utf-8')
@@ -36,8 +36,7 @@ def generate_txt(__dir_path, __save_path):
 
 
 if __name__ == "__main__":
-    save_path = "txt"  # 保存的路径
-    dir_path = "D:/CodeResp/IRBOPP/train/train_data/iou/data_by_video/image_patch/video_"  # 存放数据集的位置
-    label_path = "D:/CodeResp/IRBOPP/train/train_data/iou/data_by_video/all_single/"
-    # 训练集和测试集的比例9：1
+    save_path = "txt30video"  # 保存的路径
+    dir_path = "D:/CodeResp/IRBOPP/train/halpe26_data/data_by_video/image_patch/video_"  # 存放数据集的位置
+    label_path = "D:/CodeResp/IRBOPP/train/halpe26_data/data_by_video/all_single/"
     generate_txt(dir_path, save_path)

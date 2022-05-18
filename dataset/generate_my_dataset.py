@@ -16,7 +16,7 @@ from log_config.log import logger as Log
 # 定义读取文件的格式
 def default_loader(path):
     img = Image.open(path).convert('RGB')
-    img = img.resize((20, 50), Image.ANTIALIAS)
+    # img = img.resize((20, 50), Image.ANTIALIAS)
     return img
 
 
@@ -53,7 +53,7 @@ def generate_dataset():
     learning_rate = 0.0001
 
     # 数据集的设置**************************************************************************
-    root = "dataset/txt/"  # 调用图像
+    root = "dataset/txt30video/"  # 调用图像
 
     # 根据自己定义的那个MyDataset来创建数据集！注意是数据集！而不是loader迭代器
     # *********************************************数据集读取完毕***************************
@@ -75,8 +75,8 @@ def generate_dataset():
     test_loader = DataLoader(dataset=test_data, batch_size=32, shuffle=False, num_workers=4)
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))
-    Log.info('num_of_trainData:', len(train_data))
-    Log.info('num_of_testData:', len(test_data))
+    Log.info('num_of_trainData:%d' % (len(train_data)))
+    Log.info('num_of_testData:%d' % (len(test_data)))
     return train_loader, test_loader
 
 
