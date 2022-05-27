@@ -71,3 +71,60 @@
 2022-05-18 15:15:57 - INFO - Epoch: 0 | Loss: 8.786 | Acc: 83.341% (1936/2323)
 2022-05-18 15:17:02 - INFO - Epoch: 1 | Loss: 0.447 | Acc: 84.288% (1958/2323)
 2022-05-18 15:18:10 - INFO - Epoch: 2 | Loss: 0.504 | Acc: 83.986% (1951/2323)
+2022-05-18 15:19:22 - INFO - Epoch: 3 | Loss: 0.426 | Acc: 84.546% (1964/2323)
+2022-05-18 15:20:37 - INFO - Epoch: 4 | Loss: 0.429 | Acc: 84.546% (1964/2323)
+2022-05-18 15:21:53 - INFO - Epoch: 5 | Loss: 0.426 | Acc: 84.546% (1964/2323)
+2022-05-18 15:24:31 - INFO - num_of_trainData:3485
+2022-05-18 15:24:31 - INFO - num_of_testData:2323
+2022-05-18 15:25:02 - INFO - num_of_trainData:3485
+2022-05-18 15:25:02 - INFO - num_of_testData:2323
+2022-05-27 15:53:21 - INFO - num_of_trainData:3485
+2022-05-27 15:53:21 - INFO - num_of_testData:2323
+2022-05-27 15:53:49 - INFO - num_of_trainData:3485
+2022-05-27 15:53:49 - INFO - num_of_testData:2323
+2022-05-27 15:55:12 - INFO - num_of_trainData:3485
+2022-05-27 15:55:12 - INFO - num_of_testData:2323
+2022-05-27 15:56:52 - INFO - num_of_trainData:3485
+2022-05-27 15:56:52 - INFO - num_of_testData:2323
+2022-05-27 16:00:37 - INFO - num_of_trainData:3485
+2022-05-27 16:00:37 - INFO - num_of_testData:2323
+2022-05-27 16:01:06 - INFO - num_of_trainData:3485
+2022-05-27 16:01:06 - INFO - num_of_testData:2323
+2022-05-27 16:07:38 - INFO - num_of_trainData:3485
+2022-05-27 16:07:38 - INFO - num_of_testData:2323
+2022-05-27 16:08:02 - INFO - num_of_trainData:3485
+2022-05-27 16:08:02 - INFO - num_of_testData:2323
+2022-05-27 16:37:32 - INFO - num_of_trainData:3485
+2022-05-27 16:37:32 - INFO - num_of_testData:2323
+2022-05-27 16:38:40 - INFO - num_of_trainData:3485
+2022-05-27 16:38:40 - INFO - num_of_testData:2323
+2022-05-27 16:39:54 - INFO - num_of_trainData:3485
+2022-05-27 16:39:54 - INFO - num_of_testData:2323
+2022-05-27 16:40:14 - INFO - num_of_trainData:3485
+2022-05-27 16:40:14 - INFO - num_of_testData:2323
+2022-05-27 16:41:03 - INFO - num_of_trainData:3485
+2022-05-27 16:41:03 - INFO - num_of_testData:2323
+2022-05-27 16:41:45 - INFO - num_of_trainData:3485
+2022-05-27 16:41:45 - INFO - num_of_testData:2323
+2022-05-27 16:45:28 - INFO - num_of_trainData:3485
+2022-05-27 16:45:28 - INFO - num_of_testData:2323
+2022-05-27 16:47:10 - INFO - num_of_trainData:3485
+2022-05-27 16:47:10 - INFO - num_of_testData:2323
+2022-05-27 16:48:06 - INFO - num_of_trainData:3485
+2022-05-27 16:48:06 - INFO - num_of_testData:2323
+2022-05-27 17:56:16 - INFO - num_of_trainData:3485
+2022-05-27 17:56:16 - INFO - num_of_testData:2323
+2022-05-27 17:57:13 - INFO - num_of_trainData:3485
+2022-05-27 17:57:13 - INFO - num_of_testData:2323
+2022-05-27 17:59:50 - INFO - Epoch: 0 | Loss: 0.899 | Acc: 84.546% (1964/2323)
+2022-05-27 18:01:40 - INFO - Epoch: 1 | Loss: 0.424 | Acc: 84.546% (1964/2323)
+2022-05-27 18:03:32 - INFO - Epoch: 2 | Loss: 0.409 | Acc: 84.546% (1964/2323)
+2022-05-27 18:05:22 - INFO - Epoch: 3 | Loss: 0.407 | Acc: 84.546% (1964/2323)
+2022-05-27 18:09:08 - INFO - num_of_trainData:3485
+2022-05-27 18:09:08 - INFO - num_of_testData:2323
+2022-05-27 18:09:57 - INFO - num_of_trainData:3485
+2022-05-27 18:09:57 - INFO - num_of_testData:2323
+2022-05-27 18:11:39 - INFO - num_of_trainData:3485
+2022-05-27 18:11:39 - INFO - num_of_testData:2323
+2022-05-27 18:14:36 - INFO - num_of_trainData:3485
+2022-05-27 18:14:36 - INFO - num_of_testData:2323

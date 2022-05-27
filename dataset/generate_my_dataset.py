@@ -11,12 +11,56 @@ import numpy as np
 import torch.optim as optim
 import os
 from log_config.log import logger as Log
+import cv2
+import json
+
+
+def cv2PIL(img_cv):
+    return Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
+
+
+def PIL2cv(img_pil):
+    return cv2.cvtColor(np.asarray(img_pil), cv2.COLOR_RGB2BGR)
+
+
+def read_json(json_path):
+    json_data = open(json_path)
+    json_string = json_data.read()
+    j = json.loads(json_string)
+    return j
 
 
 # 定义读取文件的格式
 def default_loader(path):
-    img = Image.open(path).convert('RGB')
-    # img = img.resize((20, 50), Image.ANTIALIAS)
+    # img = Image.open(path).convert('RGB')
+    img = cv2.imread(path)
+    path = path.split('/')
+    video_name = path[5]
+    video_id = int(video_name[6:10])
+    img_name = path[6]
+    img_id = int(img_name.split('.')[0])
+    img = cv2.resize(img, (10, 25))
+    Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    alpha_pose_path = "E:/CodeResp/pycode/DataSet/pose_result" + video_name + "/alphapose-results.json"
+    alpha_pose = read_json(alpha_pose_path)
+    for pose in alpha_pose:
+        if pose["score"] < 1:
+            continue
+        if pose["image_id"] == img_name:
+            pose_box = [pose["box"][0], pose["box"][1], pose["box"][0] + pose["box"][2],
+                        pose["box"][1] + pose["box"][3]]
+            tl_width_height_box = pose["box"]  # 获取注释中的box，(左上角点，宽高)格式
+        #     true_box = [xtl, ytl, xbr, ybr]
+        #     iou_val = box_iou(pose_box, true_box)
+        #     if iou_val > max_iou:
+        #         x_keypoints_proposal = get_key_points(pose["keypoints"])
+        #         max_pose_box = tl_width_height_box
+        #         plot_max_box = pose_box
+        #         img_frame_id = int(annotation["@frame"])
+        #         max_iou = iou_val
+        # elif pose["image_id"] == str(int(annotation["@frame"]) + 1) + ".jpg":
+        #     break
+
     return img
 
 
@@ -53,7 +97,7 @@ def generate_dataset():
     learning_rate = 0.0001
 
     # 数据集的设置**************************************************************************
-    root = "dataset/txt30video/"  # 调用图像
+    root = "dataset/txt_init_img/video30/"  # 调用图像
 
     # 根据自己定义的那个MyDataset来创建数据集！注意是数据集！而不是loader迭代器
     # *********************************************数据集读取完毕***************************
