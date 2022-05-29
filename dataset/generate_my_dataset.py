@@ -9,17 +9,18 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import numpy as np
 import torch.optim as optim
+import pandas as pd
 import os
 from log_config.log import logger as Log
 import cv2
 import json
 
 
-def cv2PIL(img_cv):
+def cv_to_pil(img_cv):
     return Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
 
 
-def PIL2cv(img_pil):
+def pil_to_cv(img_pil):
     return cv2.cvtColor(np.asarray(img_pil), cv2.COLOR_RGB2BGR)
 
 
@@ -32,36 +33,132 @@ def read_json(json_path):
 
 # 定义读取文件的格式
 def default_loader(path):
-    # img = Image.open(path).convert('RGB')
-    img = cv2.imread(path)
-    path = path.split('/')
-    video_name = path[5]
-    video_id = int(video_name[6:10])
-    img_name = path[6]
+    path_split = path.split('/')
+    video_name = path_split[7]
+    img_name = path_split[8]
+    video_id = int(video_name.split('_')[1])
     img_id = int(img_name.split('.')[0])
-    img = cv2.resize(img, (10, 25))
-    Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    alpha_pose_path = "E:/CodeResp/pycode/DataSet/pose_result" + video_name + "/alphapose-results.json"
-    alpha_pose = read_json(alpha_pose_path)
-    for pose in alpha_pose:
-        if pose["score"] < 1:
-            continue
-        if pose["image_id"] == img_name:
-            pose_box = [pose["box"][0], pose["box"][1], pose["box"][0] + pose["box"][2],
-                        pose["box"][1] + pose["box"][3]]
-            tl_width_height_box = pose["box"]  # 获取注释中的box，(左上角点，宽高)格式
-        #     true_box = [xtl, ytl, xbr, ybr]
-        #     iou_val = box_iou(pose_box, true_box)
-        #     if iou_val > max_iou:
-        #         x_keypoints_proposal = get_key_points(pose["keypoints"])
-        #         max_pose_box = tl_width_height_box
-        #         plot_max_box = pose_box
-        #         img_frame_id = int(annotation["@frame"])
-        #         max_iou = iou_val
-        # elif pose["image_id"] == str(int(annotation["@frame"]) + 1) + ".jpg":
-        #     break
+    alpha_pose = read_pose_annotation(video_id)
+    pose = alpha_pose[img_id]
 
-    return img
+    xtl, ytl, width, height = round(pose[80]), round(pose[81]), round(pose[82]), round(pose[83])
+    # xbr, ybr = xtl + width, ytl + height
+    points_float = pose[2:80]
+    points_x = []
+    points_y = []
+    points_z = []
+    raw_image = cv2.imread(path)
+    img_height, img_width, img_shape = raw_image.shape
+    offset = 4
+    for __i in range(len(points_float)):
+        if __i % 3 == 0:
+            x_rectify = round(points_float[__i] - xtl)  # 需要防止越界
+            if x_rectify >= img_width:
+                x_rectify = img_width - offset
+            elif x_rectify <= 0:
+                x_rectify = offset
+            points_x.append(x_rectify)
+        elif __i % 3 == 1:
+            y_rectify = round(points_float[__i] - ytl)
+            if y_rectify >= img_height:
+                y_rectify = img_height - offset
+            elif y_rectify <= 0:
+                y_rectify = offset
+            points_y.append(y_rectify)
+        else:
+            points_z.append(points_float[__i])
+
+    points_map = np.zeros((img_height, img_width, 1))  # 初始化一个0矩阵,存储特征点
+    for __i in range(len(points_x)):
+        points_map[points_y[__i], points_x[__i], 0] = round(points_z[__i] * 255)
+    # print(raw_image.shape, points_map.shape)
+    raw_img_numpy = np.concatenate((raw_image, points_map), axis=2)
+    # 如果使用ndarray.resize扩展形状大小，空白部分用第一个元素补全，如果使用numpy.resize()
+    # 扩展形状大小，空白部分依次用原数据的从头到尾的顺序填充。
+    # print("raw_img_numpy:", raw_img_numpy.shape)
+    raw_img_resize = np.resize(raw_img_numpy, (200, 200, 4)).astype(np.float32)
+    # print(type(raw_img_resize))
+    # print(raw_img_resize.shape)
+    return raw_img_resize
+
+
+def read_pose_annotation(__video_id: int):
+    data_path = "D:/CodeResp/IRBOPP/train/halpe26_data/data_by_video/all_single/"
+    pose_arr = pd.read_csv(data_path + "data" + str(__video_id) + ".csv", header=None, sep=',',
+                           encoding='utf-8').values
+    return pose_arr
+
+
+# 整数转偶数
+def int_to_even(number: int):
+    return int(number // 2 * 2)
+
+
+# 整个的人体图像patch加上特征点位置像素
+def total_body_img_patch(each_video_all_pose):
+    image_path = "E:/CodeResp/pycode/DataSet/JAAD_image/video_"
+    img_r_width, img_r_height = 80, 200  # 输出结果图像的大小，宽和高
+    each_video_pose = each_video_all_pose[0]
+    img_id_start = 0
+    for pose in each_video_pose:
+        v_id, img_id, label = int(pose[0]), int(pose[1]), int(pose[84])
+        img_file_path = image_path + str(v_id).zfill(4) + "/" + str(img_id) + ".jpg"
+        raw_image = cv2.imread(img_file_path, 1)
+        # print("raw image shape:", raw_image.shape)
+
+        xtl, ytl, width, height = round(pose[80]), round(pose[81]), round(pose[82]), round(pose[83])
+        xbr, ybr = xtl + width, ytl + height
+        print("xtl, ytl, xbr, ybr", xtl, ytl, xbr, ybr)
+        img_patch = raw_image[ytl:ybr, xtl:xbr, :]
+        print("img cropped patch shape:", img_patch.shape)
+        img_height, img_width, img_shape = img_patch.shape
+        os_dir = "../train/halpe26_data/data_by_video/image_patch/video_" + str(v_id).zfill(4)
+        if not os.path.exists(os_dir):  # 判断是否存在文件夹如果不存在则创建为文件夹
+            os.makedirs(os_dir)
+        else:
+            print("保存为图像patch的文件夹已存在，注意不要覆盖图像")
+            break
+        save_path = os_dir + "/" + str(img_id_start) + ".jpg"
+        img_id_start += 1
+        print(save_path)
+        if img_width / img_height < img_r_width / img_r_height:
+            # 高度与结果一致
+            fx = img_r_height / img_height
+            img_patch_resize = cv2.resize(img_patch, dsize=(int_to_even(img_width * fx), img_r_height))
+            patch_resize_height, patch_resize_width = img_patch_resize.shape[0], img_patch_resize.shape[1]
+            print("img_patch_resize.shape:", img_patch_resize.shape)
+            img_padding = np.zeros((img_r_height, (img_r_width - patch_resize_width) // 2, 3), np.uint8)
+            print("img_padding.shape:", img_padding.shape)
+            img_patch_concat = np.concatenate((img_padding, img_patch_resize, img_padding), axis=1)
+        else:
+            # 宽度与结果一致
+            fy = img_r_width / img_width
+            img_patch_resize = cv2.resize(img_patch, dsize=(img_r_width, int_to_even(img_height * fy)))
+            patch_resize_height, patch_resize_width = img_patch_resize.shape[0], img_patch_resize.shape[1]
+            print("img_patch_resize.shape:", img_patch_resize.shape)
+            img_padding = np.zeros(((img_r_height - patch_resize_height) // 2, img_r_width, 3), np.uint8)
+            print("img_padding shape: ", img_padding.shape)
+            img_patch_concat = np.concatenate((img_padding, img_patch_resize, img_padding), axis=0)
+        # cv2.imwrite(save_path, img_patch_concat)
+        return img_patch_concat
+
+
+#
+# # 获取图像patch加pose位置像素的四维数据和label
+# def get_img_patch_label(index: int):
+#     all_pose = np.array(read_pose_annotation(0))
+#     img_patch_concat = total_body_img_patch(all_pose)
+#     number_of_test = 347  # 测试的视频量
+#     for video_read_id in range(1, number_of_test):
+#         try:
+#             all_pose = np.array(read_pose_annotation(video_read_id))
+#             img_patch = total_body_img_patch(all_pose)
+#             img_patch_concat = np.concatenate((img_patch_concat, img_patch))
+#         except OSError:
+#             print("data ", video_read_id, "is not exist")
+#         else:
+#             print("data has been load ", video_read_id)
+#     return img, label
 
 
 # 首先继承上面的dataset类。然后在__init__()方法中得到图像的路径，然后将图像路径组成一个数组，这样在__getitim__()中就可以直接读取：
@@ -84,6 +181,7 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
     def __getitem__(self, index):  # 这个方法是必须要有的，用于按照索引读取每个元素的具体内容
         fn, label = self.imgs[index]  # fn是图片path #fn和label分别获得imgs[index]也即是刚才每行中word[0]和word[1]的信息
         img = self.loader(fn)  # 按照路径读取图片
+        print("type(img) ", type(img))
         if self.transform is not None:
             img = self.transform(img)  # 数据标签转换为Tensor
         return img, label  # return回哪些内容，那么我们在训练时循环读取每个batch时，就能获得哪些内容
@@ -97,7 +195,7 @@ def generate_dataset():
     learning_rate = 0.0001
 
     # 数据集的设置**************************************************************************
-    root = "dataset/txt_init_img/video30/"  # 调用图像
+    root = "dataset/txt_init/video30/"  # 调用图像
 
     # 根据自己定义的那个MyDataset来创建数据集！注意是数据集！而不是loader迭代器
     # *********************************************数据集读取完毕***************************
@@ -112,8 +210,8 @@ def generate_dataset():
     # ])
 
     # 数据集加载方式设置
-    train_data = MyDataset(txt=root + 'train.txt', transform=transforms.ToTensor())
-    test_data = MyDataset(txt=root + 'test.txt', transform=transforms.ToTensor())
+    train_data = MyDataset(txt=root + 'train.txt')
+    test_data = MyDataset(txt=root + 'test.txt')
     # 然后就是调用DataLoader和刚刚创建的数据集，来创建dataloader，这里提一句，loader的长度是有多少个batch，所以和batch_size有关
     train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True, num_workers=4)
     test_loader = DataLoader(dataset=test_data, batch_size=32, shuffle=False, num_workers=4)
