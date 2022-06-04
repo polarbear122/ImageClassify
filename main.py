@@ -62,7 +62,7 @@ def test(__epoch, __test_loader, __net):
                          % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
         Log.info("Epoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
                  (__epoch, test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
-    # Save checkpoint.
+    # Save checkpoint.:q:i
     print('Saving..')
     acc = 100. * correct / total
     state = {

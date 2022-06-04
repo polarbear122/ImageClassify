@@ -21,5 +21,15 @@ def test_numpy_resize():
     print(result)
 
 
+def test_numpy_list():
+    zeros1 = np.zeros((3, 2))
+    ones1 = np.ones((4, 5))
+    concat_list = [np.ones((3,10))]
+    concat_list.append(zeros1)
+    print(concat_list)
+    concat_list.append(ones1)
+    print(concat_list)
+
+
 if __name__ == "__main__":
-    test_numpy_resize()
+    test_numpy_list()

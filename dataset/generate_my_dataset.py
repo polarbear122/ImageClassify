@@ -15,6 +15,39 @@ from log_config.log import logger as Log
 import cv2
 import json
 
+pose_arr_list = []  # 以list形式保存pose arr数组，不存在的数组用0数组代替
+pose_arr_position = [0]  # 记录每个视频pose的长度位置，取video_id位置的数据pose_arr_list[video_id-1,video_id]
+pose_arr_numpy = np.zeros((1, 1))  # 以numpy数组形式保存pose arr数组，读取时需结合pose arr position使用
+
+
+def init_read_pose_annotation():
+    data_path = "D:/CodeResp/IRBOPP/train/halpe26_data/data_by_video/all_single/"
+    pose_arr = pd.read_csv(data_path + "data1.csv", header=None, sep=',', encoding='utf-8').values
+    pose_arr_list.append(pose_arr)
+    for __video_id in range(2, 347):
+        try:
+            csv_data_name = data_path + "data" + str(__video_id) + ".csv"  # 拼接字符串成csv数据的地址
+            pose_arr = pd.read_csv(csv_data_name, header=None, sep=',', encoding='utf-8').values
+        except OSError:
+            print("data ", __video_id, "is not exist")
+            pose_arr = np.zeros((1, 1))
+        else:
+            print("data has been load ", __video_id)
+        pose_arr_list.append(pose_arr)
+    # pose_arr_numpy = pd.read_csv(data_path + "data1.csv", header=None, sep=',', encoding='utf-8').values
+    # pose_arr_position.append(len(pose_arr_numpy))
+    # for __video_id in range(2, 347):
+    #     try:
+    #         pose_arr_numpy = pd.read_csv(data_path + "data" + str(__video_id) + ".csv", header=None, sep=',',
+    #                                      encoding='utf-8').values
+    #         pose_arr_position.append(len(pose_arr_numpy))
+    #         pose_arr_numpy = np.concatenate((pose_arr_numpy, pose_arr_numpy), axis=0)
+    #     except OSError:
+    #         pose_arr_position.append(pose_arr_position[-1])
+    #         print("data ", __video_id, "is not exist")
+    #     else:
+    #         print("data has been load ", __video_id)
+
 
 def cv_to_pil(img_cv):
     return Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
@@ -29,64 +62,6 @@ def read_json(json_path):
     json_string = json_data.read()
     j = json.loads(json_string)
     return j
-
-
-# 定义读取文件的格式
-def default_loader(path):
-    path_split = path.split('/')
-    video_name = path_split[7]
-    img_name = path_split[8]
-    video_id = int(video_name.split('_')[1])
-    img_id = int(img_name.split('.')[0])
-    alpha_pose = read_pose_annotation(video_id)
-    pose = alpha_pose[img_id]
-
-    xtl, ytl, width, height = round(pose[80]), round(pose[81]), round(pose[82]), round(pose[83])
-    # xbr, ybr = xtl + width, ytl + height
-    points_float = pose[2:80]
-    points_x = []
-    points_y = []
-    points_z = []
-    raw_image = cv2.imread(path)
-    img_height, img_width, img_shape = raw_image.shape
-    offset = 4
-    for __i in range(len(points_float)):
-        if __i % 3 == 0:
-            x_rectify = round(points_float[__i] - xtl)  # 需要防止越界
-            if x_rectify >= img_width:
-                x_rectify = img_width - offset
-            elif x_rectify <= 0:
-                x_rectify = offset
-            points_x.append(x_rectify)
-        elif __i % 3 == 1:
-            y_rectify = round(points_float[__i] - ytl)
-            if y_rectify >= img_height:
-                y_rectify = img_height - offset
-            elif y_rectify <= 0:
-                y_rectify = offset
-            points_y.append(y_rectify)
-        else:
-            points_z.append(points_float[__i])
-
-    points_map = np.zeros((img_height, img_width, 1))  # 初始化一个0矩阵,存储特征点
-    for __i in range(len(points_x)):
-        points_map[points_y[__i], points_x[__i], 0] = round(points_z[__i] * 255)
-    # print(raw_image.shape, points_map.shape)
-    raw_img_numpy = np.concatenate((raw_image, points_map), axis=2)
-    # 如果使用ndarray.resize扩展形状大小，空白部分用第一个元素补全，如果使用numpy.resize()
-    # 扩展形状大小，空白部分依次用原数据的从头到尾的顺序填充。
-    # print("raw_img_numpy:", raw_img_numpy.shape)
-    raw_img_resize = np.resize(raw_img_numpy, (200, 200, 4)).astype(np.float32)
-    # print(type(raw_img_resize))
-    # print(raw_img_resize.shape)
-    return raw_img_resize
-
-
-def read_pose_annotation(__video_id: int):
-    data_path = "D:/CodeResp/IRBOPP/train/halpe26_data/data_by_video/all_single/"
-    pose_arr = pd.read_csv(data_path + "data" + str(__video_id) + ".csv", header=None, sep=',',
-                           encoding='utf-8').values
-    return pose_arr
 
 
 # 整数转偶数
@@ -163,7 +138,7 @@ def total_body_img_patch(each_video_all_pose):
 
 # 首先继承上面的dataset类。然后在__init__()方法中得到图像的路径，然后将图像路径组成一个数组，这样在__getitim__()中就可以直接读取：
 class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承的torch.utils.data.Dataset
-    def __init__(self, txt, transform=None, target_transform=None, loader=default_loader):  # 初始化一些需要传入的参数
+    def __init__(self, txt, transform=None, target_transform=None):  # 初始化一些需要传入的参数
         super(MyDataset, self).__init__()  # 对继承自父类的属性进行初始化
         fh = open(txt, 'r')  # 按照传入的路径和txt文本参数，打开这个文本，并读取内容
         imgs = []
@@ -176,12 +151,63 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         self.imgs = imgs
         self.transform = transform
         self.target_transform = target_transform
-        self.loader = loader
+        self.pose_arr_list = pose_arr_list
+        self.loader = self.default_loader
+
+    # 定义读取文件的格式
+    def default_loader(self, path):
+        path_split = path.split('/')
+        video_name = path_split[7]
+        img_name = path_split[8]
+        video_id = int(video_name.split('_')[1])
+        img_id = int(img_name.split('.')[0])
+        alpha_pose = self.pose_arr_list[video_id - 1]  # video id从1开始，而list从0开始
+        pose = alpha_pose[img_id]
+
+        xtl, ytl, width, height = round(pose[80]), round(pose[81]), round(pose[82]), round(pose[83])
+        # xbr, ybr = xtl + width, ytl + height
+        points_float = pose[2:80]
+        points_x = []
+        points_y = []
+        points_z = []
+        raw_image = cv2.imread(path)
+        img_height, img_width, img_shape = raw_image.shape
+        offset = 4
+        for __i in range(len(points_float)):
+            if __i % 3 == 0:
+                x_rectify = round(points_float[__i] - xtl)  # 需要防止越界
+                if x_rectify >= img_width:
+                    x_rectify = img_width - offset
+                elif x_rectify <= 0:
+                    x_rectify = offset
+                points_x.append(x_rectify)
+            elif __i % 3 == 1:
+                y_rectify = round(points_float[__i] - ytl)
+                if y_rectify >= img_height:
+                    y_rectify = img_height - offset
+                elif y_rectify <= 0:
+                    y_rectify = offset
+                points_y.append(y_rectify)
+            else:
+                points_z.append(points_float[__i])
+        # 特征点的连线，纯色的线或取原图像的线
+        points_map = np.zeros((img_height, img_width, 1))  # 初始化一个0矩阵,存储特征点
+        for __i in range(len(points_x)):
+            points_map[points_y[__i], points_x[__i], 0] = round(points_z[__i] * 255)
+        # print(raw_image.shape, points_map.shape)
+        raw_img_numpy = np.concatenate((raw_image, points_map), axis=2)
+        # 如果使用ndarray.resize扩展形状大小，空白部分用第一个元素补全，如果使用numpy.resize()
+        # 扩展形状大小，空白部分依次用原数据的从头到尾的顺序填充。
+        # print("raw_img_numpy:", raw_img_numpy.shape)
+        raw_img_resize = np.resize(raw_img_numpy, (200, 200, 4)).astype(np.float32)
+        # print(type(raw_img_resize))
+        # print(raw_img_resize.shape)
+        return raw_img_resize
 
     def __getitem__(self, index):  # 这个方法是必须要有的，用于按照索引读取每个元素的具体内容
         fn, label = self.imgs[index]  # fn是图片path #fn和label分别获得imgs[index]也即是刚才每行中word[0]和word[1]的信息
         img = self.loader(fn)  # 按照路径读取图片
-        print("type(img) ", type(img))
+        # print("type(img) ", type(img))
         if self.transform is not None:
             img = self.transform(img)  # 数据标签转换为Tensor
         return img, label  # return回哪些内容，那么我们在训练时循环读取每个batch时，就能获得哪些内容
@@ -192,7 +218,8 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
 
 def generate_dataset():
     # torch.cuda.set_device(gpu_id)#使用GPU
-    learning_rate = 0.0001
+    # learning_rate = 0.0001
+    init_read_pose_annotation()
 
     # 数据集的设置**************************************************************************
     root = "dataset/txt_init/video30/"  # 调用图像
