@@ -253,3 +253,5 @@
 2022-06-04 19:08:42 - INFO - num_of_trainData:3485
 2022-06-04 19:08:42 - INFO - num_of_testData:2323
 2022-06-04 19:09:43 - INFO - Epoch: 0 | Loss: 2.477 | Acc: 84.460% (1962/2323)
+2022-06-08 19:36:47 - INFO - num_of_trainData:3485
+2022-06-08 19:36:47 - INFO - num_of_testData:2323

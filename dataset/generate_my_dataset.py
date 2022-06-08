@@ -135,6 +135,77 @@ def total_body_img_patch(each_video_all_pose):
 #             print("data has been load ", video_read_id)
 #     return img, label
 
+# 修正特征点的位置
+def rectify_keypoints(points_float, xtl, ytl, img_width, img_height):
+    points_rectify = []
+    offset = 2
+    for __i in range(len(points_float)):
+        if __i % 3 == 0:
+            x_rectify = round(points_float[__i] - xtl)  # 需要防止越界
+            if x_rectify >= img_width:
+                x_rectify = img_width - offset
+            elif x_rectify <= 0:
+                x_rectify = offset
+            points_rectify.append(x_rectify)
+        elif __i % 3 == 1:
+            y_rectify = round(points_float[__i] - ytl)
+            if y_rectify >= img_height:
+                y_rectify = img_height - offset
+            elif y_rectify <= 0:
+                y_rectify = offset
+            points_rectify.append(y_rectify)
+        else:
+            points_rectify.append(points_float[__i])
+    return points_rectify
+
+
+# 画出姿势的连线,传入一个和原图像大小一致的空白图像，传入特征点的位置
+def draw_pose(img_blank, human_keypoints):
+    # kp_num == 26
+    l_pair = [
+        (0, 1), (0, 2), (1, 3), (2, 4),  # Head
+        (5, 18), (6, 18), (5, 7), (7, 9), (6, 8), (8, 10),  # Body
+        (17, 18), (18, 19), (19, 11), (19, 12),
+        (11, 13), (12, 14), (13, 15), (14, 16),
+        (20, 24), (21, 25), (23, 25), (22, 24), (15, 24), (16, 25), ]  # Foot
+
+    # 点的颜色
+    p_color = [(0, 255, 255), (0, 191, 255), (0, 255, 102), (0, 77, 255), (0, 255, 0),
+               # Nose, LEye, REye, LEar, REar
+               (77, 255, 255), (77, 255, 204), (77, 204, 255), (191, 255, 77), (77, 191, 255), (191, 255, 77),
+               # LShoulder, RShoulder, LElbow, RElbow, LWrist, RWrist
+               (204, 77, 255), (77, 255, 204), (191, 77, 255), (77, 255, 191), (127, 77, 255), (77, 255, 127),
+               # LHip, RHip, LKnee, Rknee, LAnkle, RAnkle, Neck
+               (77, 255, 255), (0, 255, 255), (77, 204, 255),  # head, neck, shoulder
+               (0, 255, 255), (0, 191, 255), (0, 255, 102), (0, 77, 255), (0, 255, 0), (77, 255, 255)]  # foot
+    # 线的颜色
+    line_color = [(0, 215, 255), (0, 255, 204), (0, 134, 255), (0, 255, 50),
+                  (0, 255, 102), (77, 255, 222), (77, 196, 255), (77, 135, 255), (191, 255, 77), (77, 255, 77),
+                  (77, 191, 255), (204, 77, 255), (77, 222, 255), (255, 156, 127),
+                  (0, 127, 255), (255, 127, 77), (0, 77, 255), (255, 77, 36),
+                  (0, 77, 255), (0, 77, 255), (0, 77, 255), (0, 77, 255), (255, 156, 127), (255, 156, 127)]
+
+    img = img_blank.copy()
+    part_line = {}
+    kp_preds = np.array(human_keypoints).reshape(-1, 3)
+
+    # Draw keypoints
+    for n in range(kp_preds.shape[0]):
+        cor_x, cor_y = round(kp_preds[n, 0]), round(kp_preds[n, 1])
+        part_line[n] = (cor_x, cor_y)
+        if n < len(p_color):
+            cv2.circle(img, (cor_x, cor_y), 3, p_color[n], -1)
+        else:
+            cv2.circle(img, (cor_x, cor_y), 1, (255, 255, 255), 2)
+
+    # Draw limbs
+    for i, (start_p, end_p) in enumerate(l_pair):
+        if start_p in part_line and end_p in part_line:
+            start_xy = part_line[start_p]
+            end_xy = part_line[end_p]
+            cv2.line(img, start_xy, end_xy, line_color[i])
+    return img
+
 
 # 首先继承上面的dataset类。然后在__init__()方法中得到图像的路径，然后将图像路径组成一个数组，这样在__getitim__()中就可以直接读取：
 class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承的torch.utils.data.Dataset
@@ -167,37 +238,16 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         xtl, ytl, width, height = round(pose[80]), round(pose[81]), round(pose[82]), round(pose[83])
         # xbr, ybr = xtl + width, ytl + height
         points_float = pose[2:80]
-        points_x = []
-        points_y = []
-        points_z = []
         raw_image = cv2.imread(path)
         img_height, img_width, img_shape = raw_image.shape
-        offset = 4
-        for __i in range(len(points_float)):
-            if __i % 3 == 0:
-                x_rectify = round(points_float[__i] - xtl)  # 需要防止越界
-                if x_rectify >= img_width:
-                    x_rectify = img_width - offset
-                elif x_rectify <= 0:
-                    x_rectify = offset
-                points_x.append(x_rectify)
-            elif __i % 3 == 1:
-                y_rectify = round(points_float[__i] - ytl)
-                if y_rectify >= img_height:
-                    y_rectify = img_height - offset
-                elif y_rectify <= 0:
-                    y_rectify = offset
-                points_y.append(y_rectify)
-            else:
-                points_z.append(points_float[__i])
-        # 特征点的连线，纯色的线或取原图像的线
-        points_map = np.zeros((img_height, img_width, 1))  # 初始化一个0矩阵,存储特征点
-        for __i in range(len(points_x)):
-            points_map[points_y[__i], points_x[__i], 0] = round(points_z[__i] * 255)
-        # print(raw_image.shape, points_map.shape)
-        raw_img_numpy = np.concatenate((raw_image, points_map), axis=2)
+        points_limbs_blank = np.zeros((img_height, img_width, 3))  # 初始化一个0矩阵,存储特征点和肢体连线，彩色图像
+        prints_rectify = rectify_keypoints(points_float, xtl, ytl, img_width, img_height)
+        img_points_limbs = draw_pose(points_limbs_blank, prints_rectify)
+
+        raw_img_numpy = np.concatenate((raw_image, img_points_limbs), axis=2)
         # 如果使用ndarray.resize扩展形状大小，空白部分用第一个元素补全，如果使用numpy.resize()
         # 扩展形状大小，空白部分依次用原数据的从头到尾的顺序填充。
+
         # print("raw_img_numpy:", raw_img_numpy.shape)
         raw_img_resize = np.resize(raw_img_numpy, (200, 200, 4)).astype(np.float32)
         # print(type(raw_img_resize))
