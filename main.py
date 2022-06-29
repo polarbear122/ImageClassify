@@ -1,12 +1,6 @@
 """Train CIFAR10 with PyTorch."""
-import torch
-import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
-
-import torchvision
-import torchvision.transforms as transforms
 
 import os
 import argparse
@@ -14,11 +8,7 @@ import argparse
 from log_config.log import logger as Log
 from models import *
 from utils import progress_bar
-from dataset.generate_my_dataset import generate_dataset
-
-config_csv_path = "D:/CodeResp/IRBOPP/train/halpe26_reid/iou06/"
-config_data_set_root = "dataset/txt_init/"
-config_img_path = "E:/CodeResp/pycode/DataSet/JAAD_image/video_"
+from generate_my_dataset import generate_dataset
 
 
 # Training
@@ -122,7 +112,7 @@ if __name__ == "__main__":
     if device == 'cuda':
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
-    need_restart = True
+    need_restart = True  # 是否重新开始训练
     if need_restart is False:
         # Load checkpoint.
         print('==> Resuming from checkpoint..')

@@ -1,24 +1,18 @@
 # 创建自己的数据集
-import torch.nn.functional as F
-import torch
-import torch.nn as nn
-from torch.autograd import Variable
-import torchvision.models as models
-from torchvision import transforms, utils
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import numpy as np
-import torch.optim as optim
 import pandas as pd
-import os
 from log_config.log import logger as Log
 import cv2
 import json
-from dataset.generate_txt import test_data_list, train_data_list
-from main import config_csv_path, config_data_set_root
+from generate_txt import test_data_list, train_data_list
+from config import config_csv_path, config_dataset_root
 
 pose_arr_position = [0]  # 记录每个视频pose的长度位置，取video_id位置的数据pose_arr_list[video_id-1,video_id]
-pose_arr_numpy = np.zeros((1, 1))  # 以numpy数组形式保存pose arr数组
+
+
+# pose_arr_numpy = np.zeros((1, 1))  # 以numpy数组形式保存pose arr数组
 
 
 # 标准化读取数据集
@@ -115,7 +109,7 @@ def draw_pose(img_blank, human_keypoints):
                   (0, 127, 255), (255, 127, 77), (0, 77, 255), (255, 77, 36),
                   (0, 77, 255), (0, 77, 255), (0, 77, 255), (0, 77, 255), (255, 156, 127), (255, 156, 127)]
 
-    img = img_blank.copy()
+    img = img_blank
     part_line = {}
     kp_preds = np.array(human_keypoints).reshape(-1, 3)
 
@@ -139,7 +133,7 @@ def draw_pose(img_blank, human_keypoints):
 
 # 首先继承上面的dataset类。然后在__init__()方法中得到图像的路径，然后将图像路径组成一个数组，这样在__getitim__()中就可以直接读取：
 class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承的torch.utils.data.Dataset
-    def __init__(self, txt, transform=None, target_transform=None):  # 初始化一些需要传入的参数
+    def __init__(self, txt, transform=None, target_transform=None, pose_arr_numpy=None):  # 初始化一些需要传入的参数
         super(MyDataset, self).__init__()  # 对继承自父类的属性进行初始化
         fh = open(txt, 'r')  # 按照传入的路径和txt文本参数，打开这个文本，并读取内容
         imgs = []
@@ -152,8 +146,8 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         self.imgs = imgs
         self.transform = transform
         self.target_transform = target_transform
-        self.pose_arr_numpy = init_read_pose_annotation()
-        print("pose arr numpy",self.pose_arr_numpy)
+        self.pose_arr_numpy = pose_arr_numpy
+        # print("pose arr numpy", self.pose_arr_numpy)
         self.loader = self.default_loader
 
     # 定义读取文件的格式
@@ -162,26 +156,28 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         img_name = path_split[0]
         uuid_idx = path_split[1]
         uuid = int(uuid_idx.split('/')[0])
-        pose = self.pose_arr_numpy[uuid]  # video id从1开始，而list从0开始
+        pose = self.pose_arr_numpy[uuid]
 
         xtl, ytl, width, height = round(pose[82]), round(pose[83]), round(pose[84]), round(pose[85])
         # xbr, ybr = xtl + width, ytl + height
         points_float = pose[4:82]
-        raw_image = cv2.imread(img_name)
-        img_height, img_width, img_shape = raw_image.shape
+        print(uuid)
+        raw_img = cv2.imread(img_name)
+        img_height, img_width, img_shape = raw_img.shape
         points_limbs_blank = np.zeros((img_height, img_width, 3))  # 初始化一个0矩阵,存储特征点和肢体连线，彩色图像
         prints_rectify = rectify_keypoints(points_float, xtl, ytl, img_width, img_height)
         img_points_limbs = draw_pose(points_limbs_blank, prints_rectify)
 
-        raw_img_numpy = np.concatenate((raw_image, img_points_limbs), axis=2)
+        raw_img_numpy = np.concatenate((raw_img, img_points_limbs), axis=2)
         # 如果使用ndarray.resize扩展形状大小，空白部分用第一个元素补全，如果使用numpy.resize()
         # 扩展形状大小，空白部分依次用原数据的从头到尾的顺序填充。
-
         # print("raw_img_numpy:", raw_img_numpy.shape)
-        raw_img_resize = np.resize(raw_img_numpy, (200, 200, 4)).astype(np.float32)
-        print("raw_img_resize",raw_img_resize)
+        raw_img_resize = np.resize(raw_img_numpy, (200, 200, 3)).astype(np.float32)
+        # print("raw_img_resize",raw_img_resize)
+
         # print(type(raw_img_resize))
         # print(raw_img_resize.shape)
+
         return raw_img_resize
 
     def __getitem__(self, index):  # 这个方法是必须要有的，用于按照索引读取每个元素的具体内容
@@ -199,10 +195,8 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
 def generate_dataset():
     # torch.cuda.set_device(gpu_id)#使用GPU
     # learning_rate = 0.0001
-    init_read_pose_annotation()
-
     # 数据集的设置**************************************************************************
-    root = config_data_set_root  # 调用图像
+    root = config_dataset_root  # 调用图像
 
     # 根据自己定义的那个MyDataset来创建数据集！注意是数据集！而不是loader迭代器
     # *********************************************数据集读取完毕***************************
@@ -217,11 +211,12 @@ def generate_dataset():
     # ])
 
     # 数据集加载方式设置
-    train_data = MyDataset(txt=root + 'train.txt')
-    test_data = MyDataset(txt=root + 'test.txt')
+    pose_arr_numpy = init_read_pose_annotation()
+    train_data = MyDataset(txt=root + 'train.txt', pose_arr_numpy=pose_arr_numpy)
+    test_data = MyDataset(txt=root + 'test.txt', pose_arr_numpy=pose_arr_numpy)
     # 然后就是调用DataLoader和刚刚创建的数据集，来创建dataloader，这里提一句，loader的长度是有多少个batch，所以和batch_size有关
-    train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True, num_workers=4)
-    test_loader = DataLoader(dataset=test_data, batch_size=32, shuffle=False, num_workers=4)
+    train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True, num_workers=1)
+    test_loader = DataLoader(dataset=test_data, batch_size=32, shuffle=False, num_workers=1)
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))
     Log.info('num_of_trainData:%d' % (len(train_data)))
