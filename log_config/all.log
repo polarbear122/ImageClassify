@@ -271,3 +271,17 @@
 2022-06-25 15:53:47 - INFO - Epoch: 11 | Loss: 0.423 | Acc: 84.546% (1964/2323)
 2022-06-25 15:54:13 - INFO - Epoch: 12 | Loss: 0.427 | Acc: 84.546% (1964/2323)
 2022-06-25 15:54:40 - INFO - Epoch: 13 | Loss: 0.432 | Acc: 84.546% (1964/2323)
+2022-06-29 13:12:12 - INFO - num_of_trainData:56368
+2022-06-29 13:12:12 - INFO - num_of_testData:43630
+2022-06-29 13:13:11 - INFO - num_of_trainData:56368
+2022-06-29 13:13:11 - INFO - num_of_testData:43630
+2022-06-29 13:14:32 - INFO - num_of_trainData:56368
+2022-06-29 13:14:32 - INFO - num_of_testData:43630
+2022-06-29 13:17:01 - INFO - num_of_trainData:56368
+2022-06-29 13:17:01 - INFO - num_of_testData:43630
+2022-06-29 13:20:21 - INFO - num_of_trainData:56368
+2022-06-29 13:20:21 - INFO - num_of_testData:43630
+2022-06-29 13:21:58 - INFO - num_of_trainData:56368
+2022-06-29 13:21:58 - INFO - num_of_testData:43630
+2022-06-29 13:25:40 - INFO - num_of_trainData:56368
+2022-06-29 13:25:40 - INFO - num_of_testData:43630

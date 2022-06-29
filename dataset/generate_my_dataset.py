@@ -14,26 +14,34 @@ import os
 from log_config.log import logger as Log
 import cv2
 import json
+from dataset.generate_txt import test_data_list, train_data_list
 
-pose_arr_list = []  # 以list形式保存pose arr数组，不存在的数组用0数组代替
 pose_arr_position = [0]  # 记录每个视频pose的长度位置，取video_id位置的数据pose_arr_list[video_id-1,video_id]
-pose_arr_numpy = np.zeros((1, 1))  # 以numpy数组形式保存pose arr数组，读取时需结合pose arr position使用
+pose_arr_numpy = np.zeros((1, 1))  # 以numpy数组形式保存pose arr数组
+
+
+# 标准化读取数据集
+def normalize_read(_data_path, _data_list):
+    # 先初始化向量
+    _pose = pd.read_csv(_data_path + "data" + str(_data_list[0]) + ".csv", header=None, sep=',', encoding='utf-8')
+    for v_id in _data_list[1:]:
+        try:
+            _pose_arr = pd.read_csv(_data_path + "data" + str(v_id) + ".csv", header=None, sep=',', encoding='utf-8')
+            print("shape:", _pose_arr.shape)
+            _pose = np.concatenate((_pose, _pose_arr), axis=0)
+        except OSError:
+            print("data ", v_id, "is not exist")
+        else:
+            print("data has been load ", v_id)
+    return _pose
 
 
 def init_read_pose_annotation():
-    data_path = "D:/CodeResp/IRBOPP/train/halpe26_data/data_by_video/all_single/"
-    pose_arr = pd.read_csv(data_path + "data1.csv", header=None, sep=',', encoding='utf-8').values
-    pose_arr_list.append(pose_arr)
-    for __video_id in range(2, 347):
-        try:
-            csv_data_name = data_path + "data" + str(__video_id) + ".csv"  # 拼接字符串成csv数据的地址
-            pose_arr = pd.read_csv(csv_data_name, header=None, sep=',', encoding='utf-8').values
-        except OSError:
-            print("data ", __video_id, "is not exist")
-            pose_arr = np.zeros((1, 1))
-        else:
-            print("data has been load ", __video_id)
-        pose_arr_list.append(pose_arr)
+    print("------------------------init_read_pose_annotation----------------------------------------------- ")
+    data_path = "D:/CodeResp/IRBOPP/train/halpe26_reid/iou06/"
+    data_list = train_data_list + test_data_list
+
+    return normalize_read(data_path, data_list)
 
 
 def cv_to_pil(img_cv):
@@ -143,23 +151,22 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         self.imgs = imgs
         self.transform = transform
         self.target_transform = target_transform
-        self.pose_arr_list = pose_arr_list
+        self.pose_arr_numpy = init_read_pose_annotation()
+        print("pose arr numpy",self.pose_arr_numpy)
         self.loader = self.default_loader
 
     # 定义读取文件的格式
     def default_loader(self, path):
-        path_split = path.split('/')
-        video_name = path_split[7]
-        img_name = path_split[8]
-        video_id = int(video_name.split('_')[1])
-        img_id = int(img_name.split('.')[0])
-        alpha_pose = self.pose_arr_list[video_id - 1]  # video id从1开始，而list从0开始
-        pose = alpha_pose[img_id]
+        path_split = path.split('*')
+        img_name = path_split[0]
+        uuid_idx = path_split[1]
+        uuid = int(uuid_idx.split('/')[0])
+        pose = self.pose_arr_numpy[uuid]  # video id从1开始，而list从0开始
 
-        xtl, ytl, width, height = round(pose[80]), round(pose[81]), round(pose[82]), round(pose[83])
+        xtl, ytl, width, height = round(pose[82]), round(pose[83]), round(pose[84]), round(pose[85])
         # xbr, ybr = xtl + width, ytl + height
-        points_float = pose[2:80]
-        raw_image = cv2.imread(path)
+        points_float = pose[4:82]
+        raw_image = cv2.imread(img_name)
         img_height, img_width, img_shape = raw_image.shape
         points_limbs_blank = np.zeros((img_height, img_width, 3))  # 初始化一个0矩阵,存储特征点和肢体连线，彩色图像
         prints_rectify = rectify_keypoints(points_float, xtl, ytl, img_width, img_height)
@@ -171,6 +178,7 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
 
         # print("raw_img_numpy:", raw_img_numpy.shape)
         raw_img_resize = np.resize(raw_img_numpy, (200, 200, 4)).astype(np.float32)
+        print("raw_img_resize",raw_img_resize)
         # print(type(raw_img_resize))
         # print(raw_img_resize.shape)
         return raw_img_resize
@@ -193,7 +201,7 @@ def generate_dataset():
     init_read_pose_annotation()
 
     # 数据集的设置**************************************************************************
-    root = "dataset/txt_init/video30/"  # 调用图像
+    root = "dataset/txt_init/"  # 调用图像
 
     # 根据自己定义的那个MyDataset来创建数据集！注意是数据集！而不是loader迭代器
     # *********************************************数据集读取完毕***************************
