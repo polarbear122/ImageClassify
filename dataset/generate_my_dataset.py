@@ -15,6 +15,7 @@ from log_config.log import logger as Log
 import cv2
 import json
 from dataset.generate_txt import test_data_list, train_data_list
+from main import config_csv_path, config_data_set_root
 
 pose_arr_position = [0]  # 记录每个视频pose的长度位置，取video_id位置的数据pose_arr_list[video_id-1,video_id]
 pose_arr_numpy = np.zeros((1, 1))  # 以numpy数组形式保存pose arr数组
@@ -38,7 +39,7 @@ def normalize_read(_data_path, _data_list):
 
 def init_read_pose_annotation():
     print("------------------------init_read_pose_annotation----------------------------------------------- ")
-    data_path = "D:/CodeResp/IRBOPP/train/halpe26_reid/iou06/"
+    data_path = config_csv_path
     data_list = train_data_list + test_data_list
 
     return normalize_read(data_path, data_list)
@@ -201,7 +202,7 @@ def generate_dataset():
     init_read_pose_annotation()
 
     # 数据集的设置**************************************************************************
-    root = "dataset/txt_init/"  # 调用图像
+    root = config_data_set_root  # 调用图像
 
     # 根据自己定义的那个MyDataset来创建数据集！注意是数据集！而不是loader迭代器
     # *********************************************数据集读取完毕***************************

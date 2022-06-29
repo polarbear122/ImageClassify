@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 
+from main import config_img_path, config_csv_path, config_data_set_root
+
 train_data_list = [80, 9, 203, 198, 101, 237, 244, 17, 261, 62, 242, 115, 220, 31, 65, 270, 185, 12, 172, 168, 180, 110,
                    150, 336,
                    294, 206, 116, 339, 119, 240, 184, 19, 98, 277, 137, 221, 128, 87, 170, 1, 78, 192, 288, 5, 189, 194,
@@ -66,7 +68,7 @@ def generate_txt(__data_path, __save_path, __init_img_path):
 
 
 if __name__ == "__main__":
-    save_path = "txt_init/lab3070/"  # 保存的路径
-    data_path = "D:/CodeResp/IRBOPP/train/halpe26_reid/iou06/data"  # 存放数据集的位置
-    init_img_path = "E:/CodeResp/pycode/DataSet/JAAD_image/video_"
+    save_path = config_data_set_root  # 保存的路径
+    data_path = config_csv_path+"/data"  # 存放数据集的位置
+    init_img_path = config_img_path
     generate_txt(data_path, save_path, init_img_path)

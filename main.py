@@ -16,6 +16,10 @@ from models import *
 from utils import progress_bar
 from dataset.generate_my_dataset import generate_dataset
 
+config_csv_path = "D:/CodeResp/IRBOPP/train/halpe26_reid/iou06/"
+config_data_set_root = "dataset/txt_init/"
+config_img_path = "E:/CodeResp/pycode/DataSet/JAAD_image/video_"
+
 
 # Training
 def train(__epoch, __train_loader, __net):
@@ -66,8 +70,8 @@ def test(__epoch, __test_loader, __net):
     print('Saving..')
     acc = 100. * correct / total
     state = {
-        'net'  : __net.state_dict(),
-        'acc'  : acc,
+        'net': __net.state_dict(),
+        'acc': acc,
         'epoch': __epoch,
     }
     if not os.path.isdir(ck_path):
