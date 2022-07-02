@@ -3,11 +3,14 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import numpy as np
 import pandas as pd
+from torchvision.transforms import transforms
+
 from log_config.log import logger as Log
 import cv2
 import json
 from generate_txt import test_data_list, train_data_list
 from config import config_csv_path, config_dataset_root
+from PIL import Image  # 导入PIL库
 
 pose_arr_position = [0]  # 记录每个视频pose的长度位置，取video_id位置的数据pose_arr_list[video_id-1,video_id]
 
@@ -154,14 +157,16 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
     def default_loader(self, path):
         path_split = path.split('*')
         img_name = path_split[0]
+        img = Image.open(img_name)  # 读取图片
+        # raw_img_resize =img.resize((50,20))
+        # print(img_name)
         uuid_idx = path_split[1]
         uuid = int(uuid_idx.split('/')[0])
         pose = self.pose_arr_numpy[uuid]
-
         xtl, ytl, width, height = round(pose[82]), round(pose[83]), round(pose[84]), round(pose[85])
         # xbr, ybr = xtl + width, ytl + height
         points_float = pose[4:82]
-        print(uuid)
+        # print(uuid)
         raw_img = cv2.imread(img_name)
         img_height, img_width, img_shape = raw_img.shape
         points_limbs_blank = np.zeros((img_height, img_width, 3))  # 初始化一个0矩阵,存储特征点和肢体连线，彩色图像
@@ -171,8 +176,7 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         raw_img_numpy = np.concatenate((raw_img, img_points_limbs), axis=2)
         # 如果使用ndarray.resize扩展形状大小，空白部分用第一个元素补全，如果使用numpy.resize()
         # 扩展形状大小，空白部分依次用原数据的从头到尾的顺序填充。
-        # print("raw_img_numpy:", raw_img_numpy.shape)
-        raw_img_resize = np.resize(raw_img_numpy, (200, 200, 3)).astype(np.float32)
+        raw_img_resize = np.resize(raw_img_numpy, (50, 100, 6)).astype(np.float32)
         # print("raw_img_resize",raw_img_resize)
 
         # print(type(raw_img_resize))
@@ -212,11 +216,11 @@ def generate_dataset():
 
     # 数据集加载方式设置
     pose_arr_numpy = init_read_pose_annotation()
-    train_data = MyDataset(txt=root + 'train.txt', pose_arr_numpy=pose_arr_numpy)
-    test_data = MyDataset(txt=root + 'test.txt', pose_arr_numpy=pose_arr_numpy)
+    train_data = MyDataset(txt=root + 'train.txt', transform=transforms.ToTensor(), pose_arr_numpy=pose_arr_numpy)
+    test_data = MyDataset(txt=root + 'test.txt', transform=transforms.ToTensor(), pose_arr_numpy=pose_arr_numpy)
     # 然后就是调用DataLoader和刚刚创建的数据集，来创建dataloader，这里提一句，loader的长度是有多少个batch，所以和batch_size有关
-    train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True, num_workers=1)
-    test_loader = DataLoader(dataset=test_data, batch_size=32, shuffle=False, num_workers=1)
+    train_loader = DataLoader(dataset=train_data, batch_size=160, shuffle=True, num_workers=16)
+    test_loader = DataLoader(dataset=test_data, batch_size=160, shuffle=False, num_workers=16)
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))
     Log.info('num_of_trainData:%d' % (len(train_data)))

@@ -36,7 +36,7 @@ def generate_txt(__data_path, __save_path, __init_img_path):
     train_txt = open(__save_path + '/train.txt', 'w')  # 以只写方式打开文件
     test_txt = open(__save_path + '/test.txt', 'w')
     # 遍历每个子文件夹
-    for video_id in range(347):
+    for video_id in range(100):
         try:
             data_arr = pd.read_csv(__data_path + str(video_id) + ".csv", header=None, sep=',',
                                    encoding='utf-8')

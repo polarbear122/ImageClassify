@@ -33,6 +33,8 @@ def train(__epoch, __train_loader, __net):
 
         progress_bar(batch_idx, len(__train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+    Log.info("TrainEpoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
+             (__epoch, train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
 
 
 def test(__epoch, __test_loader, __net):
@@ -54,7 +56,7 @@ def test(__epoch, __test_loader, __net):
 
             progress_bar(batch_idx, len(__test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                          % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
-        Log.info("Epoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
+        Log.info("TestEpoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
                  (__epoch, test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
     # Save checkpoint.:q:i
     print('Saving..')
@@ -112,7 +114,7 @@ if __name__ == "__main__":
     if device == 'cuda':
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
-    need_restart = True  # 是否重新开始训练
+    need_restart = False  # 是否重新开始训练
     if need_restart is False:
         # Load checkpoint.
         print('==> Resuming from checkpoint..')

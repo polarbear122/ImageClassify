@@ -1,0 +1,11 @@
+C:/datasetzyf/jaad_patch/video_0004/0.jpg*955/55 0
+C:/datasetzyf/jaad_patch/video_0004/1.jpg*956/55 0
+C:/datasetzyf/jaad_patch/video_0004/2.jpg*957/58 0
+C:/datasetzyf/jaad_patch/video_0004/3.jpg*958/58 0
+C:/datasetzyf/jaad_patch/video_0004/4.jpg*959/57 0
+C:/datasetzyf/jaad_patch/video_0004/5.jpg*960/54 0
+C:/datasetzyf/jaad_patch/video_0004/6.jpg*961/54 0
+C:/datasetzyf/jaad_patch/video_0004/7.jpg*962/54 0
+C:/datasetzyf/jaad_patch/video_0004/8.jpg*963/54 0
+C:/datasetzyf/jaad_patch/video_0004/9.jpg*964/59 0
+C:/datasetzyf/jaad_patch/video_0004/10.jpg*965/59 0
