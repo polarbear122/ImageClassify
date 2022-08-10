@@ -95,4 +95,4 @@ def test():
     y = net(x)
     print(y)
 
-# test()
+# test.py()

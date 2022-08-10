@@ -1,14 +1,14 @@
 """Train CIFAR10 with PyTorch."""
-import torch.optim as optim
-import torch.backends.cudnn as cudnn
-
-import os
 import argparse
+import os
 
+import torch.backends.cudnn as cudnn
+from torch import optim
+
+from generate_my_dataset import generate_dataset
 from log_config.log import logger as Log
 from models import *
 from utils import progress_bar
-from generate_my_dataset import generate_dataset
 
 
 # Training
@@ -56,7 +56,7 @@ def test(__epoch, __test_loader, __net):
 
             progress_bar(batch_idx, len(__test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                          % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
-        Log.info("TestEpoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
+        Log.info("TestEpoch : %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
                  (__epoch, test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
     # Save checkpoint.:q:i
     print('Saving..')
@@ -70,12 +70,13 @@ def test(__epoch, __test_loader, __net):
         os.mkdir(ck_path)
     torch.save(state, ck_path + 'ckpt_update.pth')
     if acc > best_acc:
+        print("本轮训练精度优于最佳精度, epoch: %d ,acc: %0.3f%% ,pre_best_acc: %.3f%%," % (__epoch, acc, best_acc))
         torch.save(state, ck_path + 'ckpt' + str(__epoch) + '.pth')
         best_acc = acc
 
 
 if __name__ == "__main__":
-    ck_path = "checkpoint/ResNet18/"
+    ck_path = "checkpoint/DLA/"
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
     # parser.add_argument('--resume', '-r', action='store_true',
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    best_acc = 0  # best test accuracy
+    best_acc = 0  # best test.py accuracy
     start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
     # Data
@@ -92,11 +93,10 @@ if __name__ == "__main__":
 
     # 此处修改训练数据集
     train_loader, test_loader = generate_dataset()
-
     # Model
     print('==> Building model..')
     # net = VGG('VGG19')
-    net = ResNet18()
+    # net = ResNet18()
     # net = PreActResNet18()
     # net = GoogLeNet()
     # net = DenseNet121()
@@ -109,12 +109,13 @@ if __name__ == "__main__":
     # net = ShuffleNetV2(1)
     # net = EfficientNetB0()
     # net = RegNetX_200MF()
-    # net = SimpleDLA()
+    net = SimpleDLA()
+    print("net:", net)
     net = net.to(device)
     if device == 'cuda':
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
-    need_restart = False  # 是否重新开始训练
+    need_restart = True  # 是否重新开始训练
     if need_restart is False:
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
@@ -125,9 +126,11 @@ if __name__ == "__main__":
         start_epoch = checkpoint['epoch']
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=args.lr,
-                          momentum=0.9, weight_decay=5e-4)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
+    # optimizer = optim.SGD(net.parameters(), lr=0.2,
+    #                       momentum=0.9, weight_decay=5e-3)
+    optimizer = optim.SGD(net.parameters(), lr=0.2)
+    # optimizer = torch.optim.Adam(net.parameters(), lr=0.1)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=400)
 
     for epoch in range(start_epoch, start_epoch + 200):
         train(epoch, train_loader, net)

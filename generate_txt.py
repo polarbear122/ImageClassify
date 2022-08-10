@@ -58,7 +58,7 @@ def generate_txt(__data_path, __save_path, __init_img_path):
                 elif video_id in test_data_list:
                     test_txt.write(img_path + ' ' + str(img_label) + '\n')
                 else:
-                    print("error, video id is not in train or test list")
+                    print("error, video id is not in train or test.py list")
         except OSError:
             print("data or label ", video_id, "is not exist")
         else:

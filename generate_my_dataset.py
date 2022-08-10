@@ -1,16 +1,18 @@
 # 创建自己的数据集
-from torch.utils.data import Dataset, DataLoader
-from PIL import Image
+import json
+
+import cv2
 import numpy as np
 import pandas as pd
+import torch
+from PIL import Image  # 导入PIL库
+from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import SubsetRandomSampler
 from torchvision.transforms import transforms
 
-from log_config.log import logger as Log
-import cv2
-import json
+from config import config_csv_path, jaad_face_patch, config_dataset_root
 from generate_txt import test_data_list, train_data_list
-from config import config_csv_path, config_dataset_root
-from PIL import Image  # 导入PIL库
+from log_config.log import logger as Log
 
 pose_arr_position = [0]  # 记录每个视频pose的长度位置，取video_id位置的数据pose_arr_list[video_id-1,video_id]
 
@@ -37,7 +39,11 @@ def normalize_read(_data_path, _data_list):
 def init_read_pose_annotation():
     print("------------------------init_read_pose_annotation----------------------------------------------- ")
     data_path = config_csv_path
-    data_list = train_data_list + test_data_list
+
+    l = []
+    for _i in range(1, 347):
+        l.append(_i)
+    data_list = l
 
     return normalize_read(data_path, data_list)
 
@@ -154,10 +160,48 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         self.loader = self.default_loader
 
     # 定义读取文件的格式
+    # 仅读取脸部图像
     def default_loader(self, path):
         path_split = path.split('*')
         img_name = path_split[0]
-        img = Image.open(img_name)  # 读取图片
+        uuid_idx = path_split[1]
+        uuid = int(uuid_idx.split('/')[0])
+        id_in_video = int(uuid_idx.split('/')[1]) - 1
+
+        pose_arr = self.pose_arr_numpy
+        uuid_arr, v_id_arr, idx_arr, img_id_arr, label_arr = pose_arr[:, 0], pose_arr[:, 1], pose_arr[:, 2], \
+                                                             pose_arr[:, 3], pose_arr[:, 86]
+        # print(img_name)
+        raw_img = cv2.imread(img_name)
+        img = np.resize(raw_img, (15, 15, 3))
+        # img = cv2.resize(raw_img, (15, 15))
+        # 往前追溯30帧
+        u = uuid
+
+        img_concat = img
+        for i in range(30 - 1):
+            pre = u - (i + 1) * 2  # 之前的帧，选择抽取2秒内的30帧，即60帧抽取30帧
+            id_in_v = id_in_video - (i + 1) * 2
+            # 如果视频id不正确，或第u帧之前无图像，或者前面i帧的idx和第u帧的idx不一致，都只添加0矩阵
+            if v_id_arr[pre] != v_id_arr[u] or pre <= 0 or idx_arr[pre] != idx_arr[u] or id_in_v < 0:
+                pose_temp = np.zeros((15, 15, 3))
+            else:
+                pre_img_path = jaad_face_patch + str(int(v_id_arr[u])).zfill(4) + "/" + str(id_in_v) + ".jpg"
+                # print(pre_img_path)
+                pose_temp = cv2.imread(pre_img_path)
+                pose_temp = cv2.resize(pose_temp, (15, 15))
+            img_concat = np.concatenate((img_concat, pose_temp), axis=2).astype(np.float32)
+        return img_concat
+
+    # 读取人的全部范围的图像，加上特征点连线，组成6维向量
+    def default_loader_all(self, path):
+        path_split = path.split('*')
+        img_name = path_split[0]
+        # img = cv2.imread(img_name)  # 读取图片
+        # img = cv2.resize(img, (50, 100))
+        # image = img[: (img.shape[0] // 2), :]
+        # return image
+
         # raw_img_resize =img.resize((50,20))
         # print(img_name)
         uuid_idx = path_split[1]
@@ -181,7 +225,6 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
 
         # print(type(raw_img_resize))
         # print(raw_img_resize.shape)
-
         return raw_img_resize
 
     def __getitem__(self, index):  # 这个方法是必须要有的，用于按照索引读取每个元素的具体内容
@@ -194,6 +237,33 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
 
     def __len__(self):  # 这个函数也必须要写，它返回的是数据集的长度，也就是多少张图片，要和loader的长度作区分
         return len(self.imgs)
+
+
+def test_kfold(dataset):
+    batch_size = 32
+    num_workers = 16
+    shuffle_dataset = True
+    random_seed = 42
+    validation_split = .2
+
+    # Usage Example:
+    num_epochs = 10  # Creating data indices for training and validation splits:
+    dataset_size = len(dataset)
+    indices = list(range(dataset_size))
+    split = int(np.floor(validation_split * dataset_size))
+    if shuffle_dataset:
+        np.random.seed(random_seed)
+        np.random.shuffle(indices)
+    train_indices, val_indices = indices[split:], indices[:split]
+
+    # Creating PT data samplers and loaders:
+    train_sampler = SubsetRandomSampler(train_indices)
+    valid_sampler = SubsetRandomSampler(val_indices)
+    train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, sampler=train_sampler,
+                                               num_workers=num_workers)
+    validation_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, sampler=valid_sampler,
+                                                    num_workers=num_workers)
+    return train_loader, validation_loader
 
 
 def generate_dataset():
@@ -216,6 +286,7 @@ def generate_dataset():
 
     # 数据集加载方式设置
     pose_arr_numpy = init_read_pose_annotation()
+    # pose_arr_numpy = []
     train_data = MyDataset(txt=root + 'train.txt', transform=transforms.ToTensor(), pose_arr_numpy=pose_arr_numpy)
     test_data = MyDataset(txt=root + 'test.txt', transform=transforms.ToTensor(), pose_arr_numpy=pose_arr_numpy)
     # 然后就是调用DataLoader和刚刚创建的数据集，来创建dataloader，这里提一句，loader的长度是有多少个batch，所以和batch_size有关
@@ -225,6 +296,9 @@ def generate_dataset():
     print('num_of_testData:', len(test_data))
     Log.info('num_of_trainData:%d' % (len(train_data)))
     Log.info('num_of_testData:%d' % (len(test_data)))
+    # all_data = MyDataset(txt=root + 'all.txt', transform=transforms.ToTensor(), pose_arr_numpy=pose_arr_numpy)
+    # print('num_of_allData:', len(all_data))
+    # train_loader, test_loader = test_kfold(all_data)
     return train_loader, test_loader
 
 

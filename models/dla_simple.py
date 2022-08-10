@@ -79,7 +79,7 @@ class SimpleDLA(nn.Module):
     def __init__(self, block=BasicBlock, num_classes=2):
         super(SimpleDLA, self).__init__()
         self.base = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.Conv2d(90, 16, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(16),
             nn.ReLU(True)
         )
@@ -100,7 +100,7 @@ class SimpleDLA(nn.Module):
         self.layer4 = Tree(block, 64, 128, level=2, stride=2)
         self.layer5 = Tree(block, 128, 256, level=2, stride=2)
         self.layer6 = Tree(block, 256, 512, level=1, stride=2)
-        self.linear = nn.Linear(1536, num_classes)
+        self.linear = nn.Linear(2048, num_classes)
 
     def forward(self, x):
         out = self.base(x)
@@ -110,7 +110,7 @@ class SimpleDLA(nn.Module):
         out = self.layer4(out)
         out = self.layer5(out)
         out = self.layer6(out)
-        out = F.avg_pool2d(out, 2)
+        # out = F.avg_pool2d(out, 2)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         # print("*******************************************")
