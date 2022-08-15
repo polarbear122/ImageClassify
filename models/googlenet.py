@@ -57,7 +57,7 @@ class GoogLeNet(nn.Module):
     def __init__(self):
         super(GoogLeNet, self).__init__()
         self.pre_layers = nn.Sequential(
-            nn.Conv2d(3, 192, kernel_size=3, padding=1),
+            nn.Conv2d(45, 192, kernel_size=3, padding=1),
             nn.BatchNorm2d(192),
             nn.ReLU(True),
         )
@@ -77,7 +77,7 @@ class GoogLeNet(nn.Module):
         self.b5 = Inception(832, 384, 192, 384, 48, 128, 128)
 
         self.avgpool = nn.AvgPool2d(8, stride=1)
-        self.linear = nn.Linear(1024, 10)
+        self.linear = nn.Linear(65536, 2)
 
     def forward(self, x):
         out = self.pre_layers(x)
@@ -92,7 +92,7 @@ class GoogLeNet(nn.Module):
         out = self.maxpool(out)
         out = self.a5(out)
         out = self.b5(out)
-        out = self.avgpool(out)
+        # out = self.avgpool(out)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out

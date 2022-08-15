@@ -3,6 +3,7 @@ import argparse
 import os
 
 import torch.backends.cudnn as cudnn
+import torch.optim
 from torch import optim
 
 from generate_my_dataset import generate_dataset
@@ -56,6 +57,7 @@ def test(__epoch, __test_loader, __net):
 
             progress_bar(batch_idx, len(__test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                          % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+        print(test_loss)
         Log.info("TestEpoch : %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
                  (__epoch, test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
     # Save checkpoint.:q:i
@@ -76,7 +78,7 @@ def test(__epoch, __test_loader, __net):
 
 
 if __name__ == "__main__":
-    ck_path = "checkpoint/DLA/"
+    ck_path = "checkpoint/DPN92/"
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
     # parser.add_argument('--resume', '-r', action='store_true',
@@ -96,20 +98,20 @@ if __name__ == "__main__":
     # Model
     print('==> Building model..')
     # net = VGG('VGG19')
-    # net = ResNet18()
-    # net = PreActResNet18()
+    # net = ResNet152()
+    # net = PreActResNet152()
     # net = GoogLeNet()
     # net = DenseNet121()
     # net = ResNeXt29_2x64d()
     # net = MobileNet()
     # net = MobileNetV2()
-    # net = DPN92()
+    net = DPN92()
     # net = ShuffleNetG2()
     # net = SENet18()
     # net = ShuffleNetV2(1)
     # net = EfficientNetB0()
     # net = RegNetX_200MF()
-    net = SimpleDLA()
+    # net = SimpleDLA()
     print("net:", net)
     net = net.to(device)
     if device == 'cuda':
@@ -127,12 +129,12 @@ if __name__ == "__main__":
 
     criterion = nn.CrossEntropyLoss()
     # optimizer = optim.SGD(net.parameters(), lr=0.2,
-    #                       momentum=0.9, weight_decay=5e-3)
-    optimizer = optim.SGD(net.parameters(), lr=0.2)
-    # optimizer = torch.optim.Adam(net.parameters(), lr=0.1)
+    #                       momentum=0.95, weight_decay=1e-3)
+    optimizer = optim.SGD(net.parameters(), lr=0.1)
+    # optimizer = torch.optim.Adam(net.parameters(), lr=0.2, weight_decay=1e-3)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=400)
 
-    for epoch in range(start_epoch, start_epoch + 200):
+    for epoch in range(start_epoch, start_epoch + 400):
         train(epoch, train_loader, net)
         test(epoch, test_loader, net)
         scheduler.step()

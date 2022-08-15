@@ -171,25 +171,27 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         pose_arr = self.pose_arr_numpy
         uuid_arr, v_id_arr, idx_arr, img_id_arr, label_arr = pose_arr[:, 0], pose_arr[:, 1], pose_arr[:, 2], \
                                                              pose_arr[:, 3], pose_arr[:, 86]
+        imgsize_x, img_size_y = 15, 15
         # print(img_name)
         raw_img = cv2.imread(img_name)
-        img = np.resize(raw_img, (15, 15, 3))
+        img = np.resize(raw_img, (imgsize_x, img_size_y, 3))
         # img = cv2.resize(raw_img, (15, 15))
         # 往前追溯30帧
         u = uuid
 
         img_concat = img
-        for i in range(30 - 1):
-            pre = u - (i + 1) * 2  # 之前的帧，选择抽取2秒内的30帧，即60帧抽取30帧
-            id_in_v = id_in_video - (i + 1) * 2
+        for i in range(15 - 1):
+            pre = u - (i + 1) * 1  # 之前的帧，选择抽取1秒内的30帧
+            id_in_v = id_in_video - (i + 1) * 1
             # 如果视频id不正确，或第u帧之前无图像，或者前面i帧的idx和第u帧的idx不一致，都只添加0矩阵
             if v_id_arr[pre] != v_id_arr[u] or pre <= 0 or idx_arr[pre] != idx_arr[u] or id_in_v < 0:
-                pose_temp = np.zeros((15, 15, 3))
+                pose_temp = np.zeros((imgsize_x, img_size_y, 3))
             else:
                 pre_img_path = jaad_face_patch + str(int(v_id_arr[u])).zfill(4) + "/" + str(id_in_v) + ".jpg"
                 # print(pre_img_path)
                 pose_temp = cv2.imread(pre_img_path)
-                pose_temp = cv2.resize(pose_temp, (15, 15))
+                pose_temp = np.resize(pose_temp, (imgsize_x, img_size_y, 3))
+                # pose_temp = cv2.resize(pose_temp, (20, 20))
             img_concat = np.concatenate((img_concat, pose_temp), axis=2).astype(np.float32)
         return img_concat
 
@@ -290,8 +292,8 @@ def generate_dataset():
     train_data = MyDataset(txt=root + 'train.txt', transform=transforms.ToTensor(), pose_arr_numpy=pose_arr_numpy)
     test_data = MyDataset(txt=root + 'test.txt', transform=transforms.ToTensor(), pose_arr_numpy=pose_arr_numpy)
     # 然后就是调用DataLoader和刚刚创建的数据集，来创建dataloader，这里提一句，loader的长度是有多少个batch，所以和batch_size有关
-    train_loader = DataLoader(dataset=train_data, batch_size=160, shuffle=True, num_workers=16)
-    test_loader = DataLoader(dataset=test_data, batch_size=160, shuffle=False, num_workers=16)
+    train_loader = DataLoader(dataset=train_data, batch_size=64, shuffle=True, num_workers=16)
+    test_loader = DataLoader(dataset=test_data, batch_size=64, shuffle=False, num_workers=16)
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))
     Log.info('num_of_trainData:%d' % (len(train_data)))
