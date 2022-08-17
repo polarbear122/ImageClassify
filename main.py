@@ -60,7 +60,7 @@ def test(__epoch, __test_loader, __net):
         print(test_loss)
         Log.info("TestEpoch : %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
                  (__epoch, test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
-    # Save checkpoint.:q:i
+    # Save checkpoint.
     print('Saving..')
     acc = 100. * correct / total
     state = {
@@ -78,7 +78,7 @@ def test(__epoch, __test_loader, __net):
 
 
 if __name__ == "__main__":
-    ck_path = "checkpoint/DPN92/"
+    ck_path = "checkpoint/ResNet18/"
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
     # parser.add_argument('--resume', '-r', action='store_true',
@@ -98,14 +98,14 @@ if __name__ == "__main__":
     # Model
     print('==> Building model..')
     # net = VGG('VGG19')
-    # net = ResNet152()
-    # net = PreActResNet152()
+    net = ResNet18()
+    # net = PreActResNet18()
     # net = GoogLeNet()
     # net = DenseNet121()
     # net = ResNeXt29_2x64d()
     # net = MobileNet()
     # net = MobileNetV2()
-    net = DPN92()
+    # net = DPN92()
     # net = ShuffleNetG2()
     # net = SENet18()
     # net = ShuffleNetV2(1)
@@ -128,9 +128,9 @@ if __name__ == "__main__":
         start_epoch = checkpoint['epoch']
 
     criterion = nn.CrossEntropyLoss()
-    # optimizer = optim.SGD(net.parameters(), lr=0.2,
-    #                       momentum=0.95, weight_decay=1e-3)
-    optimizer = optim.SGD(net.parameters(), lr=0.1)
+    optimizer = optim.SGD(net.parameters(), lr=0.1,
+                          momentum=0.95, weight_decay=1e-3)
+    # optimizer = optim.SGD(net.parameters(), lr=0.1)
     # optimizer = torch.optim.Adam(net.parameters(), lr=0.2, weight_decay=1e-3)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=400)
 

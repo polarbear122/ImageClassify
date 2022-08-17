@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 from PIL import Image  # 导入PIL库
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 from torch.utils.data import SubsetRandomSampler
 from torchvision.transforms import transforms
 
@@ -180,7 +180,7 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         u = uuid
 
         img_concat = img
-        for i in range(15 - 1):
+        for i in range(10 - 1):
             pre = u - (i + 1) * 1  # 之前的帧，选择抽取1秒内的30帧
             id_in_v = id_in_video - (i + 1) * 1
             # 如果视频id不正确，或第u帧之前无图像，或者前面i帧的idx和第u帧的idx不一致，都只添加0矩阵
@@ -188,10 +188,8 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
                 pose_temp = np.zeros((imgsize_x, img_size_y, 3))
             else:
                 pre_img_path = jaad_face_patch + str(int(v_id_arr[u])).zfill(4) + "/" + str(id_in_v) + ".jpg"
-                # print(pre_img_path)
                 pose_temp = cv2.imread(pre_img_path)
                 pose_temp = np.resize(pose_temp, (imgsize_x, img_size_y, 3))
-                # pose_temp = cv2.resize(pose_temp, (20, 20))
             img_concat = np.concatenate((img_concat, pose_temp), axis=2).astype(np.float32)
         return img_concat
 
@@ -289,11 +287,21 @@ def generate_dataset():
     # 数据集加载方式设置
     pose_arr_numpy = init_read_pose_annotation()
     # pose_arr_numpy = []
-    train_data = MyDataset(txt=root + 'train.txt', transform=transforms.ToTensor(), pose_arr_numpy=pose_arr_numpy)
-    test_data = MyDataset(txt=root + 'test.txt', transform=transforms.ToTensor(), pose_arr_numpy=pose_arr_numpy)
+    transform_method = transforms.ToTensor()
+    train_data = MyDataset(txt=root + 'train.txt', transform=transform_method, pose_arr_numpy=pose_arr_numpy)
+    test_data = MyDataset(txt=root + 'test.txt', transform=transform_method, pose_arr_numpy=pose_arr_numpy)
     # 然后就是调用DataLoader和刚刚创建的数据集，来创建dataloader，这里提一句，loader的长度是有多少个batch，所以和batch_size有关
-    train_loader = DataLoader(dataset=train_data, batch_size=64, shuffle=True, num_workers=16)
+    # train_loader = DataLoader(dataset=train_data, batch_size=64, shuffle=True, num_workers=16)
+    # 处理数据不平衡
+    from torch.utils.data.sampler import WeightedRandomSampler
+    # 如果label为1，那么对应的该类别被取出来的概率是另外一个类别的2倍
+    train_weights = [2 if label == 1 else 1 for data, label in train_data]
+    dataset_size = len(train_data)
+    train_sampler = WeightedRandomSampler(train_weights, num_samples=(dataset_size//4), replacement=True)
+    train_loader = DataLoader(dataset=train_data, batch_size=64, shuffle=False, num_workers=16, sampler=train_sampler)
+
     test_loader = DataLoader(dataset=test_data, batch_size=64, shuffle=False, num_workers=16)
+
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))
     Log.info('num_of_trainData:%d' % (len(train_data)))

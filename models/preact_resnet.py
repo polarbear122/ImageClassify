@@ -26,10 +26,10 @@ class PreActBlock(nn.Module):
             )
 
     def forward(self, x):
-        out = F.relu(self.bn1(x))
+        out = F.leaky_relu(self.bn1(x))
         shortcut = self.shortcut(out) if hasattr(self, 'shortcut') else x
         out = self.conv1(out)
-        out = self.conv2(F.relu(self.bn2(out)))
+        out = self.conv2(F.leaky_relu(self.bn2(out)))
         out += shortcut
         return out
 
@@ -53,11 +53,12 @@ class PreActBottleneck(nn.Module):
             )
 
     def forward(self, x):
-        out = F.relu(self.bn1(x))
+        out = F.leaky_relu(self.bn1(x))
+    
         shortcut = self.shortcut(out) if hasattr(self, 'shortcut') else x
         out = self.conv1(out)
-        out = self.conv2(F.relu(self.bn2(out)))
-        out = self.conv3(F.relu(self.bn3(out)))
+        out = self.conv2(F.leaky_relu(self.bn2(out)))
+        out = self.conv3(F.leaky_relu(self.bn3(out)))
         out += shortcut
         return out
 
@@ -67,12 +68,12 @@ class PreActResNet(nn.Module):
         super(PreActResNet, self).__init__()
         self.in_planes = 64
 
-        self.conv1 = nn.Conv2d(45, 64, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(30, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
         self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
-        self.linear = nn.Linear(4608*block.expansion, num_classes)
+        self.linear = nn.Linear(512*block.expansion, num_classes)
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -88,7 +89,7 @@ class PreActResNet(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
-        # out = F.avg_pool2d(out, 4)
+        out = F.avg_pool2d(out, 2)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
