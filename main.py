@@ -4,11 +4,13 @@ import os
 
 import torch.backends.cudnn as cudnn
 import torch.optim
+
 from torch import optim
 
 from generate_my_dataset import generate_dataset
 from log_config.log import logger as Log
 from models import *
+from models.CNN3D.Res3D import Res3D_init
 from utils import progress_bar
 
 
@@ -78,7 +80,9 @@ def test(__epoch, __test_loader, __net):
 
 
 if __name__ == "__main__":
-    ck_path = "checkpoint/ResNet18/"
+    ck_path = "checkpoint/Res3D_init/"
+    if not os.path.exists(ck_path):
+        os.mkdir(ck_path)
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
     # parser.add_argument('--resume', '-r', action='store_true',
@@ -90,15 +94,10 @@ if __name__ == "__main__":
     best_acc = 0  # best test.py accuracy
     start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
-    # Data
-    print('==> Preparing data..')
-
-    # 此处修改训练数据集
-    train_loader, test_loader = generate_dataset()
     # Model
     print('==> Building model..')
     # net = VGG('VGG19')
-    net = ResNet18()
+    # net = ResNet18()
     # net = PreActResNet18()
     # net = GoogLeNet()
     # net = DenseNet121()
@@ -112,6 +111,7 @@ if __name__ == "__main__":
     # net = EfficientNetB0()
     # net = RegNetX_200MF()
     # net = SimpleDLA()
+    net = Res3D_init()
     print("net:", net)
     net = net.to(device)
     if device == 'cuda':
@@ -128,12 +128,23 @@ if __name__ == "__main__":
         start_epoch = checkpoint['epoch']
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.1,
-                          momentum=0.95, weight_decay=1e-3)
-    # optimizer = optim.SGD(net.parameters(), lr=0.1)
+    # optimizer = optim.SGD(net.parameters(), lr=0.1,
+    #                       momentum=0.95, weight_decay=1e-3)
+    optimizer = optim.SGD(net.parameters(), lr=0.1, weight_decay=1e-2)
     # optimizer = torch.optim.Adam(net.parameters(), lr=0.2, weight_decay=1e-3)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=400)
+    # 输入标签应该判定为并集，只要十帧内有一帧为look，整体look
+    # 使用RNN来判断，寻找小数据的时序信息的神经网络。
+    # ResNet在时序问题里面怎么处理
+    # ResNet18可能过深
+    # 筛选光照条件较好的视频
+    # 特征点截取脸部图像稍微扩大一些
+    # 视觉鸟瞰图，语义信息。需要3D信息，如何描述这些信息。
 
+    # Data
+    print('==> Preparing data..')
+    # 此处修改训练数据集
+    train_loader, test_loader = generate_dataset()
     for epoch in range(start_epoch, start_epoch + 400):
         train(epoch, train_loader, net)
         test(epoch, test_loader, net)

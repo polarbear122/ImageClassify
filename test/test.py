@@ -30,5 +30,14 @@ def test_numpy_list():
     print(concat_list)
 
 
+def get_varname(var, locals=locals()):
+    for k, v in locals.items():
+        if v is var:
+            return k
+
+
 if __name__ == "__main__":
-    test_numpy_list()
+    a = "0"
+    b = a
+    c = get_varname(b)
+    print(c)

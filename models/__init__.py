@@ -16,3 +16,7 @@ from .efficientnet import *
 from .regnet import *
 from .dla_simple import *
 from .dla import *
+
+
+def lstm_rnn():
+    return None
