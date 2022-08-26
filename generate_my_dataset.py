@@ -171,10 +171,10 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         pose_arr = self.pose_arr_numpy
         uuid_arr, v_id_arr, idx_arr, img_id_arr, label_arr = pose_arr[:, 0], pose_arr[:, 1], pose_arr[:, 2], \
                                                              pose_arr[:, 3], pose_arr[:, 86]
-        imgsize_x, img_size_y = 15, 15
+        imgsize_x, img_size_y = 50, 50
         # print(img_name)
         raw_img = cv2.imread(img_name)
-        img_shape = (imgsize_x, img_size_y, 3, 1)
+        img_shape = (3, 1, imgsize_x, img_size_y)
         img = np.resize(raw_img, img_shape)
         # img = cv2.resize(raw_img, (15, 15))
         # 往前追溯30帧
@@ -193,7 +193,8 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
                 pose_temp = cv2.imread(pre_img_path)
                 pose_temp = np.resize(pose_temp, img_shape)
                 label = np.max(label_arr[pre:u])
-            img_concat = np.concatenate((img_concat, pose_temp), axis=3).astype(np.float32)
+            img_concat = np.concatenate((img_concat, pose_temp), axis=1).astype(np.float32)
+        # print("img_concat.shape", img_concat.shape)
         return img_concat, int(label)
 
     # 读取人的全部范围的图像，加上特征点连线，组成6维向量
@@ -301,9 +302,8 @@ def generate_dataset():
     train_weights = [2 if label == 1 else 1 for data, label in train_data]
     dataset_size = len(train_data)
     train_sampler = WeightedRandomSampler(train_weights, num_samples=(dataset_size // 2), replacement=True)
-    train_loader = DataLoader(dataset=train_data, batch_size=64, shuffle=False, num_workers=16, sampler=train_sampler)
-
-    test_loader = DataLoader(dataset=test_data, batch_size=64, shuffle=False, num_workers=16)
+    train_loader = DataLoader(dataset=train_data, batch_size=16, shuffle=False, num_workers=16, sampler=train_sampler)
+    test_loader = DataLoader(dataset=test_data, batch_size=16, shuffle=False, num_workers=16)
 
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))

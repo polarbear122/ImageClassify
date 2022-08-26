@@ -43,7 +43,7 @@ class Res3D(nn.Module):
     def __init__(self, num_class):
         super(Res3D, self).__init__()
 
-        self.conv1 = nn.Conv3d(15, 64, kernel_size=(2, 2, 2), stride=(1, 1, 1), padding=(3, 3, 3))
+        self.conv1 = nn.Conv3d(3, 64, kernel_size=(2, 5, 5), stride=(2, 2, 2), padding=(3, 3, 3))
         self.conv2 = nn.Sequential(ResBlock(64, 64, spatial_stride=2),
                                    ResBlock(64, 64))
         self.conv3 = nn.Sequential(ResBlock(64, 128, spatial_stride=2, temporal_stride=2),
@@ -52,17 +52,41 @@ class Res3D(nn.Module):
                                    ResBlock(256, 256))
         self.conv5 = nn.Sequential(ResBlock(256, 512, spatial_stride=2, temporal_stride=2),
                                    ResBlock(512, 512))
-        self.avg_pool = nn.AvgPool3d(kernel_size=(1, 1, 1))
-        self.linear = nn.Linear(1536, num_class)
+        self.avg_pool = nn.AvgPool3d(kernel_size=(1, 2, 2))
+        self.dropout = nn.Dropout(0.4)
+        self.linear = nn.Linear(512, num_class)
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.conv5(x)
-        x = self.avg_pool(x)
-        return self.linear(x.view(x.size(0), -1))
+        not_print = True
+        if not_print:
+            x = self.conv1(x)
+            x = self.conv2(x)
+            x = self.conv3(x)
+            x = self.conv4(x)
+            x = self.conv5(x)
+            x = self.avg_pool(x)
+            x = self.dropout(x.view(x.size(0), -1))
+            x = self.linear(x)
+        else:
+            print("1", x.shape)
+            x = self.conv1(x)
+            print("2", x.shape)
+            x = self.conv2(x)
+            print("3", x.shape)
+            x = self.conv3(x)
+            print("4", x.shape)
+            x = self.conv4(x)
+            print("5", x.shape)
+            x = self.conv5(x)
+            print("6", x.shape)
+            x = self.avg_pool(x)
+            print("7", x.shape)
+            x = self.dropout(x.view(x.size(0), -1))
+            print("8", x.shape)
+            x = self.linear(x.view(x.size(0), -1))
+            print("9", x.shape)
+
+        return x
 
 
 def Res3D_init():

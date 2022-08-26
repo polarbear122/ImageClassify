@@ -11,6 +11,7 @@ from generate_my_dataset import generate_dataset
 from log_config.log import logger as Log
 from models import *
 from models.CNN3D.Res3D import Res3D_init
+from models.CNNLSTM.convpoolLSTM import conv_pooling_init
 from utils import progress_bar
 
 
@@ -111,7 +112,7 @@ if __name__ == "__main__":
     # net = EfficientNetB0()
     # net = RegNetX_200MF()
     # net = SimpleDLA()
-    net = Res3D_init()
+    net = conv_pooling_init()
     print("net:", net)
     net = net.to(device)
     if device == 'cuda':
