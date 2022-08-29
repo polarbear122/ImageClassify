@@ -171,31 +171,37 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         pose_arr = self.pose_arr_numpy
         uuid_arr, v_id_arr, idx_arr, img_id_arr, label_arr = pose_arr[:, 0], pose_arr[:, 1], pose_arr[:, 2], \
                                                              pose_arr[:, 3], pose_arr[:, 86]
-        imgsize_x, img_size_y = 50, 50
+        img_size_width, img_size_height = 50, 50
         # print(img_name)
         raw_img = cv2.imread(img_name)
-        img_shape = (3, 1, imgsize_x, img_size_y)
-        img = np.resize(raw_img, img_shape)
-        # img = cv2.resize(raw_img, (15, 15))
-        # 往前追溯30帧
+        img_resize = cv2.resize(raw_img, dsize=(img_size_width, img_size_height))
+        a = img_resize.swapaxes(0, 2)
+        b = a.swapaxes(2, 1)
+        img_shape = b.shape
+        img = b
+        # 往前追溯10帧
         u = uuid
 
         img_concat = img
-        for i in range(10 - 1):
-            pre = u - (i + 1) * 1  # 之前的帧，选择抽取1秒内的30帧
-            id_in_v = id_in_video - (i + 1) * 1
-            label = label_arr[u]
-            # 如果视频id不正确，或第u帧之前无图像，或者前面i帧的idx和第u帧的idx不一致，都只添加0矩阵
-            if v_id_arr[pre] != v_id_arr[u] or pre <= 0 or idx_arr[pre] != idx_arr[u] or id_in_v < 0:
-                pose_temp = np.zeros(img_shape)
-            else:
-                pre_img_path = jaad_face_patch + str(int(v_id_arr[u])).zfill(4) + "/" + str(id_in_v) + ".jpg"
-                pose_temp = cv2.imread(pre_img_path)
-                pose_temp = np.resize(pose_temp, img_shape)
-                label = np.max(label_arr[pre:u])
-            img_concat = np.concatenate((img_concat, pose_temp), axis=1).astype(np.float32)
+        # label = 0
+        # for i in range(10 - 1):
+        #     pre = u - (i + 1) * 1  # 之前的帧，选择抽取1秒内的30帧
+        #     id_in_v = id_in_video - (i + 1) * 1
+        #     label = label_arr[u]
+        #     # 如果视频id不正确，或第u帧之前无图像，或者前面i帧的idx和第u帧的idx不一致，都只添加0矩阵
+        #     if v_id_arr[pre] != v_id_arr[u] or pre <= 0 or idx_arr[pre] != idx_arr[u] or id_in_v < 0:
+        #         pose_temp = np.zeros(img_shape)
+        #     else:
+        #         pre_img_path = jaad_face_patch + str(int(v_id_arr[u])).zfill(4) + "/" + str(id_in_v) + ".jpg"
+        #         pose_temp = cv2.imread(pre_img_path)
+        #         img_resize_temp = cv2.resize(pose_temp, dsize=(img_size_width, img_size_height))
+        #         a = img_resize_temp.swapaxes(0, 2)
+        #         b = a.swapaxes(2, 1)
+        #         pose_temp = b
+        #         label = np.max(label_arr[pre:u+1])
+        #     img_concat = np.concatenate((img_concat, pose_temp), axis=0).astype(np.float32)
         # print("img_concat.shape", img_concat.shape)
-        return img_concat, int(label)
+        return img_concat.astype(np.float32)
 
     # 读取人的全部范围的图像，加上特征点连线，组成6维向量
     def default_loader_all(self, path):
@@ -229,11 +235,11 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
 
         # print(type(raw_img_resize))
         # print(raw_img_resize.shape)
-        return raw_img_resize
+        return raw_img_resize, 0
 
     def __getitem__(self, index):  # 这个方法是必须要有的，用于按照索引读取每个元素的具体内容
         fn, label = self.imgs[index]  # fn是图片path #fn和label分别获得imgs[index]也即是刚才每行中word[0]和word[1]的信息
-        img, label = self.loader(fn)  # 按照路径读取图片
+        img = self.loader(fn)  # 按照路径读取图片
         # print("type(img) ", type(img))
         # if self.transform is not None:
         #     img = self.transform(img)  # 数据标签转换为Tensor
@@ -299,11 +305,14 @@ def generate_dataset():
     # 处理数据不平衡
     from torch.utils.data.sampler import WeightedRandomSampler
     # 如果label为1，那么对应的该类别被取出来的概率是另外一个类别的2倍
-    train_weights = [2 if label == 1 else 1 for data, label in train_data]
+    train_weights = [1.5 if label == 1 else 1 for data, label in train_data]
     dataset_size = len(train_data)
     train_sampler = WeightedRandomSampler(train_weights, num_samples=(dataset_size // 2), replacement=True)
-    train_loader = DataLoader(dataset=train_data, batch_size=16, shuffle=False, num_workers=16, sampler=train_sampler)
-    test_loader = DataLoader(dataset=test_data, batch_size=16, shuffle=False, num_workers=16)
+    batch_size = 64
+    train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False, num_workers=16,
+                              sampler=train_sampler)
+    # train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False, num_workers=16)
+    test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False, num_workers=16)
 
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))

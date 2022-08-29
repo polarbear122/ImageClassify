@@ -10,8 +10,10 @@ from torch import optim
 from generate_my_dataset import generate_dataset
 from log_config.log import logger as Log
 from models import *
+from models.CNN3D.I3D import I3D_init
 from models.CNN3D.Res3D import Res3D_init
-from models.CNNLSTM.convpoolLSTM import conv_pooling_init
+from models.CNNLSTM.convpoolLSTM import conv_pooling_init, cnn_lstm_init
+from models.dnnbox import CNNLSTM_init, AlexNet_init, AttBiLSTM_init
 from utils import progress_bar
 
 
@@ -81,7 +83,7 @@ def test(__epoch, __test_loader, __net):
 
 
 if __name__ == "__main__":
-    ck_path = "checkpoint/Res3D_init/"
+    ck_path = "checkpoint/DenseNet121/"
     if not os.path.exists(ck_path):
         os.mkdir(ck_path)
     parser = argparse.ArgumentParser(description='PyTorch Training')
@@ -101,7 +103,7 @@ if __name__ == "__main__":
     # net = ResNet18()
     # net = PreActResNet18()
     # net = GoogLeNet()
-    # net = DenseNet121()
+    net = DenseNet121()
     # net = ResNeXt29_2x64d()
     # net = MobileNet()
     # net = MobileNetV2()
@@ -112,7 +114,8 @@ if __name__ == "__main__":
     # net = EfficientNetB0()
     # net = RegNetX_200MF()
     # net = SimpleDLA()
-    net = conv_pooling_init()
+    # net = AttBiLSTM_init()
+    # net = I3D_init()
     print("net:", net)
     net = net.to(device)
     if device == 'cuda':
@@ -129,10 +132,10 @@ if __name__ == "__main__":
         start_epoch = checkpoint['epoch']
 
     criterion = nn.CrossEntropyLoss()
-    # optimizer = optim.SGD(net.parameters(), lr=0.1,
-    #                       momentum=0.95, weight_decay=1e-3)
-    optimizer = optim.SGD(net.parameters(), lr=0.1, weight_decay=1e-2)
-    # optimizer = torch.optim.Adam(net.parameters(), lr=0.2, weight_decay=1e-3)
+    optimizer = optim.SGD(net.parameters(), lr=0.1,
+                          momentum=0.9, weight_decay=5e-4)
+    # optimizer = optim.SGD(net.parameters(), lr=0.2)
+    # optimizer = torch.optim.Adam(net.parameters(), lr=0.2, weight_decay=1e-2)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=400)
     # 输入标签应该判定为并集，只要十帧内有一帧为look，整体look
     # 使用RNN来判断，寻找小数据的时序信息的神经网络。
