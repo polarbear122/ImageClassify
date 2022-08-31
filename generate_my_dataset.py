@@ -305,7 +305,7 @@ def generate_dataset():
     # 处理数据不平衡
     from torch.utils.data.sampler import WeightedRandomSampler
     # 如果label为1，那么对应的该类别被取出来的概率是另外一个类别的2倍
-    train_weights = [1.5 if label == 1 else 1 for data, label in train_data]
+    train_weights = [2 if label == 1 else 1 for data, label in train_data]
     dataset_size = len(train_data)
     train_sampler = WeightedRandomSampler(train_weights, num_samples=(dataset_size // 2), replacement=True)
     batch_size = 64

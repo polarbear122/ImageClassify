@@ -131,9 +131,15 @@ if __name__ == "__main__":
         best_acc = checkpoint['acc']
         start_epoch = checkpoint['epoch']
 
+    # 手动选择ckpt
+    print("not auto choose ckpt")
+    checkpoint = torch.load(ck_path + 'ckpt305.pth')
+    net.load_state_dict(checkpoint['net'])
+    best_acc = checkpoint['acc']
+    start_epoch = checkpoint['epoch']
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.1,
-                          momentum=0.9, weight_decay=5e-4)
+                          momentum=0.9, weight_decay=1e-3)
     # optimizer = optim.SGD(net.parameters(), lr=0.2)
     # optimizer = torch.optim.Adam(net.parameters(), lr=0.2, weight_decay=1e-2)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=400)
