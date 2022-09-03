@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from config import config_img_path, config_csv_path, config_dataset_root
+from config import  config_csv_path, config_dataset_root
 
 train_data_list = [80, 9, 203, 198, 101, 237, 244, 17, 261, 62, 242, 115, 220, 31, 65, 270, 185, 12, 172, 168, 180, 110,
                    150, 336,
@@ -66,9 +66,3 @@ def generate_txt(__data_path, __save_path, __init_img_path):
     train_txt.close()
     test_txt.close()
 
-
-if __name__ == "__main__":
-    save_path = config_dataset_root  # 保存的路径
-    data_path = config_csv_path+"/data"  # 存放数据集的位置
-    init_img_path = config_img_path
-    generate_txt(data_path, save_path, init_img_path)

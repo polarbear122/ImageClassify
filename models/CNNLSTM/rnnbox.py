@@ -82,8 +82,8 @@ class AttBiLSTM(nn.Module):
 
     def forward(self, x):
         cnn_output_list = list()
-        for t in range(x.size(2)):
-            cnn_output_list.append(self.cnn(x[:, :, t, :, :]))
+        for t in range(x.size(1)):
+            cnn_output_list.append(self.cnn(x[:, t, :, :, :]))
         cnn_stack = torch.stack(tuple(cnn_output_list), dim=1)
         rnn_out, _ = self.BiLSTM(cnn_stack)
 
@@ -177,7 +177,7 @@ class LeNetVariant(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(2, 2))
         self.classifier = nn.Sequential(nn.Linear(4 * 32 * 5 * 5, 120),
-                                        nn.Linear(120, 84))
+                                        nn.Linear(120, 20))
 
     def forward(self, x):
         x = self.features(x)
@@ -190,14 +190,14 @@ class CNNLSTM(nn.Module):
     def __init__(self, num_classes=2):
         super(CNNLSTM, self).__init__()
         self.cnn = LeNetVariant()
-        self.lstm = nn.LSTM(input_size=84, hidden_size=128, num_layers=2,
+        self.lstm = nn.LSTM(input_size=20, hidden_size=128, num_layers=2,
                             batch_first=True)
         self.fc1 = nn.Linear(128, num_classes)
 
     def forward(self, x_3d):
         cnn_output_list = list()
-        for t in range(x_3d.size(2)):
-            cnn_output_list.append(self.cnn(x_3d[:, :, t, :, :]))
+        for t in range(x_3d.size(1)):
+            cnn_output_list.append(self.cnn(x_3d[:, t, :, :, :]))
         cnn_stack = torch.stack(tuple(cnn_output_list), dim=1)
         out, hidden = self.lstm(cnn_stack)
         x = out[:, -1, :]

@@ -327,6 +327,24 @@
 2022-06-29 16:04:42 - INFO - num_of_testData:43630
 2022-06-29 16:09:02 - INFO - num_of_trainData:56368
 2022-06-29 16:09:02 - INFO - num_of_testData:43630
+2022-06-29 16:21:44 - INFO - num_of_trainData:56368
+2022-06-29 16:21:44 - INFO - num_of_testData:43630
+2022-06-29 16:22:36 - INFO - num_of_trainData:56368
+2022-06-29 16:22:36 - INFO - num_of_testData:43630
+2022-06-29 19:56:31 - INFO - num_of_trainData:56368
+2022-06-29 19:56:31 - INFO - num_of_testData:43630
+2022-06-29 19:57:30 - INFO - num_of_trainData:56368
+2022-06-29 19:57:30 - INFO - num_of_testData:43630
+2022-06-29 19:59:13 - INFO - num_of_trainData:56368
+2022-06-29 19:59:13 - INFO - num_of_testData:43630
+2022-06-29 20:00:06 - INFO - num_of_trainData:56368
+2022-06-29 20:00:06 - INFO - num_of_testData:43630
+2022-06-29 20:06:12 - INFO - num_of_trainData:56368
+2022-06-29 20:06:12 - INFO - num_of_testData:43630
+2022-06-29 20:08:51 - INFO - num_of_trainData:56368
+2022-06-29 20:08:51 - INFO - num_of_testData:43630
+2022-06-29 20:09:55 - INFO - num_of_trainData:56368
+2022-06-29 20:09:55 - INFO - num_of_testData:43630
 2022-06-29 16:23:20 - INFO - num_of_trainData:56368
 2022-06-29 16:23:20 - INFO - num_of_testData:43630
 2022-06-29 16:27:19 - INFO - num_of_trainData:56368
@@ -25251,3 +25269,72 @@
 2022-08-31 15:32:53 - INFO - TrainEpoch: 426 | Loss: 0.264 | Acc: 88.967% (11128/12508)
 2022-08-31 15:33:30 - INFO - TestEpoch : 426 | Loss: 0.467 | Acc: 83.852% (6003/7159)
 2022-08-31 15:34:46 - INFO - TrainEpoch: 427 | Loss: 0.260 | Acc: 89.103% (11145/12508)
+2022-09-03 13:23:54 - INFO - num_of_trainData:16
+2022-09-03 13:23:54 - INFO - num_of_testData:16
+2022-09-03 15:13:56 - INFO - num_of_trainData:16
+2022-09-03 15:13:56 - INFO - num_of_testData:16
+2022-09-03 15:14:46 - INFO - num_of_trainData:16
+2022-09-03 15:14:46 - INFO - num_of_testData:16
+2022-09-03 15:15:23 - INFO - num_of_trainData:16
+2022-09-03 15:15:23 - INFO - num_of_testData:16
+2022-09-03 15:15:37 - INFO - TrainEpoch: 0 | Loss: 100.516 | Acc: 37.500% (6/16)
+2022-09-03 15:15:39 - INFO - TestEpoch : 0 | Loss: 4990319271406993408.000 | Acc: 31.250% (5/16)
+2022-09-03 15:15:43 - INFO - TrainEpoch: 1 | Loss: 39.121 | Acc: 37.500% (6/16)
+2022-09-03 15:15:45 - INFO - TestEpoch : 1 | Loss: 333569901056.000 | Acc: 56.250% (9/16)
+2022-09-03 15:15:49 - INFO - TrainEpoch: 2 | Loss: 4.603 | Acc: 68.750% (11/16)
+2022-09-03 15:15:51 - INFO - TestEpoch : 2 | Loss: 73039230.000 | Acc: 31.250% (5/16)
+2022-09-03 15:15:54 - INFO - TrainEpoch: 3 | Loss: 24.323 | Acc: 75.000% (12/16)
+2022-09-03 15:15:57 - INFO - TestEpoch : 3 | Loss: 9457.135 | Acc: 75.000% (12/16)
+2022-09-03 15:16:00 - INFO - TrainEpoch: 4 | Loss: 0.032 | Acc: 100.000% (16/16)
+2022-09-03 15:16:02 - INFO - TestEpoch : 4 | Loss: 211.621 | Acc: 75.000% (12/16)
+2022-09-03 15:16:05 - INFO - TrainEpoch: 5 | Loss: 0.004 | Acc: 100.000% (16/16)
+2022-09-03 15:16:08 - INFO - TestEpoch : 5 | Loss: 20.396 | Acc: 81.250% (13/16)
+2022-09-03 15:16:11 - INFO - TrainEpoch: 6 | Loss: 0.002 | Acc: 100.000% (16/16)
+2022-09-03 15:16:14 - INFO - TestEpoch : 6 | Loss: 0.010 | Acc: 100.000% (16/16)
+2022-09-03 15:41:18 - INFO - num_of_trainData:16
+2022-09-03 15:41:18 - INFO - num_of_testData:16
+2022-09-03 16:01:25 - INFO - num_of_trainData:16
+2022-09-03 16:01:25 - INFO - num_of_testData:16
+2022-09-03 16:01:28 - INFO - TrainEpoch: 0 | Loss: 0.695 | Acc: 68.750% (11/16)
+2022-09-03 16:01:30 - INFO - TestEpoch : 0 | Loss: 0.626 | Acc: 68.750% (11/16)
+2022-09-03 16:01:33 - INFO - TrainEpoch: 1 | Loss: 0.702 | Acc: 68.750% (11/16)
+2022-09-03 16:01:35 - INFO - TestEpoch : 1 | Loss: 0.620 | Acc: 68.750% (11/16)
+2022-09-03 16:01:37 - INFO - TrainEpoch: 2 | Loss: 0.692 | Acc: 68.750% (11/16)
+2022-09-03 16:01:40 - INFO - TestEpoch : 2 | Loss: 0.622 | Acc: 68.750% (11/16)
+2022-09-03 16:01:42 - INFO - TrainEpoch: 3 | Loss: 0.681 | Acc: 68.750% (11/16)
+2022-09-03 16:01:44 - INFO - TestEpoch : 3 | Loss: 0.624 | Acc: 68.750% (11/16)
+2022-09-03 16:01:47 - INFO - TrainEpoch: 4 | Loss: 0.680 | Acc: 68.750% (11/16)
+2022-09-03 16:01:49 - INFO - TestEpoch : 4 | Loss: 0.620 | Acc: 68.750% (11/16)
+2022-09-03 16:01:51 - INFO - TrainEpoch: 5 | Loss: 0.680 | Acc: 68.750% (11/16)
+2022-09-03 16:01:53 - INFO - TestEpoch : 5 | Loss: 0.618 | Acc: 68.750% (11/16)
+2022-09-03 16:01:56 - INFO - TrainEpoch: 6 | Loss: 0.676 | Acc: 68.750% (11/16)
+2022-09-03 16:01:58 - INFO - TestEpoch : 6 | Loss: 0.617 | Acc: 68.750% (11/16)
+2022-09-03 16:02:01 - INFO - TrainEpoch: 7 | Loss: 0.675 | Acc: 68.750% (11/16)
+2022-09-03 16:02:03 - INFO - TestEpoch : 7 | Loss: 0.615 | Acc: 68.750% (11/16)
+2022-09-03 16:02:06 - INFO - TrainEpoch: 8 | Loss: 0.672 | Acc: 68.750% (11/16)
+2022-09-03 16:02:08 - INFO - TestEpoch : 8 | Loss: 0.612 | Acc: 68.750% (11/16)
+2022-09-03 16:02:10 - INFO - TrainEpoch: 9 | Loss: 0.669 | Acc: 68.750% (11/16)
+2022-09-03 16:02:13 - INFO - TestEpoch : 9 | Loss: 0.609 | Acc: 68.750% (11/16)
+2022-09-03 16:02:15 - INFO - TrainEpoch: 10 | Loss: 0.668 | Acc: 68.750% (11/16)
+2022-09-03 16:02:17 - INFO - TestEpoch : 10 | Loss: 0.607 | Acc: 68.750% (11/16)
+2022-09-03 16:02:20 - INFO - TrainEpoch: 11 | Loss: 0.664 | Acc: 68.750% (11/16)
+2022-09-03 16:02:22 - INFO - TestEpoch : 11 | Loss: 0.605 | Acc: 68.750% (11/16)
+2022-09-03 16:02:25 - INFO - TrainEpoch: 12 | Loss: 0.666 | Acc: 68.750% (11/16)
+2022-09-03 16:02:27 - INFO - TestEpoch : 12 | Loss: 0.605 | Acc: 68.750% (11/16)
+2022-09-03 16:02:29 - INFO - TrainEpoch: 13 | Loss: 0.662 | Acc: 68.750% (11/16)
+2022-09-03 16:02:31 - INFO - TestEpoch : 13 | Loss: 0.603 | Acc: 68.750% (11/16)
+2022-09-03 16:02:34 - INFO - TrainEpoch: 14 | Loss: 0.662 | Acc: 68.750% (11/16)
+2022-09-03 16:02:36 - INFO - TestEpoch : 14 | Loss: 0.601 | Acc: 68.750% (11/16)
+2022-09-03 16:02:39 - INFO - TrainEpoch: 15 | Loss: 0.660 | Acc: 68.750% (11/16)
+2022-09-03 16:02:41 - INFO - TestEpoch : 15 | Loss: 0.600 | Acc: 68.750% (11/16)
+2022-09-03 16:02:43 - INFO - TrainEpoch: 16 | Loss: 0.657 | Acc: 68.750% (11/16)
+2022-09-03 16:02:45 - INFO - TestEpoch : 16 | Loss: 0.598 | Acc: 68.750% (11/16)
+2022-09-03 16:02:48 - INFO - TrainEpoch: 17 | Loss: 0.662 | Acc: 68.750% (11/16)
+2022-09-03 16:02:50 - INFO - TestEpoch : 17 | Loss: 0.598 | Acc: 68.750% (11/16)
+2022-09-03 16:02:52 - INFO - TrainEpoch: 18 | Loss: 0.655 | Acc: 68.750% (11/16)
+2022-09-03 16:02:54 - INFO - TestEpoch : 18 | Loss: 0.597 | Acc: 68.750% (11/16)
+2022-09-03 16:02:57 - INFO - TrainEpoch: 19 | Loss: 0.661 | Acc: 68.750% (11/16)
+2022-09-03 16:02:59 - INFO - TestEpoch : 19 | Loss: 0.597 | Acc: 68.750% (11/16)
+2022-09-03 16:03:01 - INFO - TrainEpoch: 20 | Loss: 0.655 | Acc: 68.750% (11/16)
+2022-09-03 16:03:04 - INFO - TestEpoch : 20 | Loss: 0.595 | Acc: 68.750% (11/16)
+2022-09-03 16:03:06 - INFO - TrainEpoch: 21 | Loss: 0.657 | Acc: 68.750% (11/16)

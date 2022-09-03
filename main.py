@@ -10,10 +10,7 @@ from torch import optim
 from generate_my_dataset import generate_dataset
 from log_config.log import logger as Log
 from models import *
-from models.CNN3D.I3D import I3D_init
-from models.CNN3D.Res3D import Res3D_init
-from models.CNNLSTM.convpoolLSTM import conv_pooling_init, cnn_lstm_init
-from models.dnnbox import CNNLSTM_init, AlexNet_init, AttBiLSTM_init
+from models.CNNLSTM.rnnbox import CNNLSTM_init
 from utils import progress_bar
 
 
@@ -103,7 +100,7 @@ if __name__ == "__main__":
     # net = ResNet18()
     # net = PreActResNet18()
     # net = GoogLeNet()
-    net = DenseNet121()
+    # net = DenseNet121()
     # net = ResNeXt29_2x64d()
     # net = MobileNet()
     # net = MobileNetV2()
@@ -116,6 +113,7 @@ if __name__ == "__main__":
     # net = SimpleDLA()
     # net = AttBiLSTM_init()
     # net = I3D_init()
+    net = CNNLSTM_init()
     print("net:", net)
     net = net.to(device)
     if device == 'cuda':
@@ -132,15 +130,15 @@ if __name__ == "__main__":
         start_epoch = checkpoint['epoch']
 
     # 手动选择ckpt
-    print("not auto choose ckpt")
-    checkpoint = torch.load(ck_path + 'ckpt305.pth')
-    net.load_state_dict(checkpoint['net'])
-    best_acc = checkpoint['acc']
-    start_epoch = checkpoint['epoch']
+    # print("not auto choose ckpt")
+    # checkpoint = torch.load(ck_path + 'ckpt305.pth')
+    # net.load_state_dict(checkpoint['net'])
+    # best_acc = checkpoint['acc']
+    # start_epoch = checkpoint['epoch']
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.1,
-                          momentum=0.9, weight_decay=1e-3)
-    # optimizer = optim.SGD(net.parameters(), lr=0.2)
+    # optimizer = optim.SGD(net.parameters(), lr=0.1,
+    #                       momentum=0.9, weight_decay=1e-3)
+    optimizer = optim.SGD(net.parameters(), lr=0.2)
     # optimizer = torch.optim.Adam(net.parameters(), lr=0.2, weight_decay=1e-2)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=400)
     # 输入标签应该判定为并集，只要十帧内有一帧为look，整体look
