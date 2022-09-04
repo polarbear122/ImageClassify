@@ -164,7 +164,6 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
     def default_loader(self, path):
         path_split = path.split('*')
         img_name = path_split[0]
-        # print(img_name)
         uuid_idx = path_split[1]
         uuid = int(uuid_idx.split('/')[0])
         id_in_video = int(uuid_idx.split('/')[1]) - 1

@@ -80,7 +80,7 @@ def test(__epoch, __test_loader, __net):
 
 
 if __name__ == "__main__":
-    ck_path = "checkpoint/DenseNet121/"
+    ck_path = "checkpoint/CNNLSTM_init/"
     if not os.path.exists(ck_path):
         os.mkdir(ck_path)
     parser = argparse.ArgumentParser(description='PyTorch Training')
