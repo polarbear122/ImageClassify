@@ -164,7 +164,7 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
     def default_loader(self, path):
         path_split = path.split('*')
         img_name = path_split[0]
-        print(img_name)
+        # print(img_name)
         uuid_idx = path_split[1]
         uuid = int(uuid_idx.split('/')[0])
         id_in_video = int(uuid_idx.split('/')[1]) - 1
@@ -175,6 +175,7 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         img_size_width, img_size_height = 50, 50
         # print(img_name)
         raw_img = cv2.imread(img_name)
+        # print("raw_img", raw_img.shape)
         img_resize = cv2.resize(raw_img, dsize=(img_size_width, img_size_height))
         # resize后shape(width,height,3)
         a = img_resize.swapaxes(0, 2)
@@ -194,13 +195,16 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
             else:
                 pre_img_path = jaad_face_patch + str(int(v_id_arr[u])).zfill(4) + "/" + str(id_in_v) + ".jpg"
                 pose_temp = cv2.imread(pre_img_path)
+                # print("pre img path", pre_img_path)
+                # print("pose_temp",pose_temp.shape)
                 img_resize_temp = cv2.resize(pose_temp, dsize=(img_size_width, img_size_height))
+                # print("img resize tmp",img_resize_temp.shape)
                 a = img_resize_temp.swapaxes(0, 2)
                 b = a.swapaxes(2, 1)
                 pose_temp = np.resize(b, result_shape)
                 label = np.max(label_arr[pre:u + 1])
             img_concat = np.concatenate((img_concat, pose_temp), axis=0).astype(np.float32)
-        print("img_concat.shape", img_concat.shape)
+        # print("img_concat.shape", img_concat.shape)
         return img_concat.astype(np.float32), int(label)
 
     # 读取人的全部范围的图像，加上特征点连线，组成6维向量
