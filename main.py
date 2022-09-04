@@ -4,7 +4,7 @@ import os
 
 import torch.backends.cudnn as cudnn
 import torch.optim
-
+from matplotlib import pyplot as plt
 from torch import optim
 
 from generate_my_dataset import generate_dataset
@@ -12,6 +12,9 @@ from log_config.log import logger as Log
 from models import *
 from models.CNNLSTM.rnnbox import CNNLSTM_init
 from utils import progress_bar
+
+train_loss_list, test_loss_list = [0], [0]
+train_acc_list, test_acc_list = [0], [0]
 
 
 # Training
@@ -34,10 +37,13 @@ def train(__epoch, __train_loader, __net):
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
 
-        progress_bar(batch_idx, len(__train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                     % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+        # progress_bar(batch_idx, len(__train_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+        #              % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
     Log.info("TrainEpoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
              (__epoch, train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+    acc = 100. * correct / total
+    train_acc_list.append(acc)
+    train_loss_list.append(train_loss / (batch_idx + 1))
 
 
 def test(__epoch, __test_loader, __net):
@@ -57,17 +63,19 @@ def test(__epoch, __test_loader, __net):
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
 
-            progress_bar(batch_idx, len(__test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                         % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+            # progress_bar(batch_idx, len(__test_loader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+            #              % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
         print(test_loss)
         Log.info("TestEpoch : %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
                  (__epoch, test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
     # Save checkpoint.
     print('Saving..')
     acc = 100. * correct / total
+    test_acc_list.append(acc)
+    test_loss_list.append(test_loss / (batch_idx + 1))
     state = {
-        'net': __net.state_dict(),
-        'acc': acc,
+        'net'  : __net.state_dict(),
+        'acc'  : acc,
         'epoch': __epoch,
     }
     if not os.path.isdir(ck_path):
@@ -157,3 +165,16 @@ if __name__ == "__main__":
         train(epoch, train_loader, net)
         test(epoch, test_loader, net)
         scheduler.step()
+        print(train_loss_list, "\n", train_acc_list, "\n", test_loss_list, "\n", test_acc_list)
+        plt.plot(train_loss_list, marker='o')
+        plt.savefig("./test/log_img/train_loss.png")
+        plt.close()
+        plt.plot(train_acc_list, 'o:r')
+        plt.savefig("./test/log_img/train_acc.png")
+        plt.close()
+        plt.plot(test_loss_list, marker='o')
+        plt.savefig("./test/log_img/test_loss.png")
+        plt.close()
+        plt.plot(test_acc_list, 'o:r')
+        plt.savefig("./test/log_img/test_acc.png")
+        plt.close()
