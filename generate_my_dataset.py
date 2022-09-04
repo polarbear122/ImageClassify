@@ -311,11 +311,11 @@ def generate_dataset():
     train_weights = [2 if label == 1 else 1 for data, label in train_data]
     dataset_size = len(train_data)
     train_sampler = WeightedRandomSampler(train_weights, num_samples=(dataset_size // 2), replacement=True)
-    batch_size = 2
+    batch_size = 32
     # train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False, num_workers=16,
     #                           sampler=train_sampler)
-    train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False, num_workers=1)
-    test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False, num_workers=1)
+    train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False, num_workers=16)
+    test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False, num_workers=16)
 
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))

@@ -176,8 +176,8 @@ class LeNetVariant(nn.Module):
             nn.Conv2d(16, 32, kernel_size=(5, 5), stride=(1, 1)),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(2, 2))
-        self.classifier = nn.Sequential(nn.Linear(3200, 160),
-                                        nn.Linear(160, 20))
+        self.classifier = nn.Sequential(nn.Linear(3200, 320),
+                                        nn.Linear(320, 32))
 
     def forward(self, x):
         x = self.features(x)
@@ -190,9 +190,9 @@ class CNNLSTM(nn.Module):
     def __init__(self, num_classes=2):
         super(CNNLSTM, self).__init__()
         self.cnn = LeNetVariant()
-        self.lstm = nn.LSTM(input_size=20, hidden_size=64, num_layers=2,
+        self.lstm = nn.LSTM(input_size=32, hidden_size=128, num_layers=2,
                             batch_first=True)
-        self.fc1 = nn.Linear(64, num_classes)
+        self.fc1 = nn.Linear(128, num_classes)
 
     def forward(self, x_3d):
         cnn_output_list = list()
