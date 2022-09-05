@@ -157,11 +157,11 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         self.target_transform = target_transform
         self.pose_arr_numpy = pose_arr_numpy
         # print("pose arr numpy", self.pose_arr_numpy)
-        self.loader = self.default_loader
+        self.loader = self.load_one_face_img
 
     # 定义读取文件的格式
     # 仅读取脸部图像
-    def default_loader(self, path):
+    def default_loader(self, path, label):
         path_split = path.split('*')
         img_name = path_split[0]
         uuid_idx = path_split[1]
@@ -183,7 +183,6 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
         u = uuid
         result_shape = (1, 3, img_size_width, img_size_height)
         img_concat = np.resize(img, result_shape)
-        label = 0
         for i in range(10 - 1):
             pre = u - (i + 1) * 1  # 之前的帧，选择抽取1秒内的30帧
             id_in_v = id_in_video - (i + 1) * 1
@@ -205,6 +204,18 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
             img_concat = np.concatenate((img_concat, pose_temp), axis=0).astype(np.float32)
         # print("img_concat.shape", img_concat.shape)
         return img_concat.astype(np.float32), int(label)
+
+    def load_one_face_img(self, path, label):
+        path_split = path.split('*')
+        img_name = path_split[0]
+        img_size_width, img_size_height = 50, 50
+        # print(img_name)
+        raw_img = cv2.imread(img_name)
+        # print("raw_img", raw_img.shape)
+        img_resize = cv2.resize(raw_img, dsize=(img_size_width, img_size_height))
+        a = img_resize.swapaxes(0, 2)
+        img = a.swapaxes(2, 1)
+        return img.astype(np.float32), label
 
     # 读取人的全部范围的图像，加上特征点连线，组成6维向量
     def default_loader_all(self, path):
@@ -242,7 +253,7 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
 
     def __getitem__(self, index):  # 这个方法是必须要有的，用于按照索引读取每个元素的具体内容
         fn, label = self.imgs[index]  # fn是图片path #fn和label分别获得imgs[index]也即是刚才每行中word[0]和word[1]的信息
-        img, label = self.loader(fn)  # 按照路径读取图片
+        img, label = self.loader(fn, label)  # 按照路径读取图片
         # print("type(img) ", type(img))
         # if self.transform is not None:
         #     img = self.transform(img)  # 数据标签转换为Tensor
@@ -312,10 +323,11 @@ def generate_dataset():
     dataset_size = len(train_data)
     train_sampler = WeightedRandomSampler(train_weights, num_samples=(dataset_size // 2), replacement=True)
     batch_size = 32
-    # train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False, num_workers=16,
-    #                           sampler=train_sampler)
-    train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False, num_workers=16)
-    test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False, num_workers=16)
+    n_worker = 1
+    train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False, num_workers=n_worker,
+                              sampler=train_sampler)
+    # train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=False, num_workers=16)
+    test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False, num_workers=n_worker)
 
     print('num_of_trainData:', len(train_data))
     print('num_of_testData:', len(test_data))

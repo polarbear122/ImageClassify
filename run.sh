@@ -10,7 +10,7 @@
 #SBATCH --ntasks=1
 
 ### 指定每个任务进程需要的cpu核数（默认1），可选项
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=18
 
 ### 指定每个节点使用的GPU卡数量
 ### 喻园一号集群一个gpu节点最多可申请使用4张V100卡
@@ -19,16 +19,14 @@
 #SBATCH --gres=gpu:2
 
 ### 指定改作业从哪个项目扣费，如果没有这条参数，则从个人账户扣费
-#SBATCH --comment=opt_ctrl_comput
+#SBATCH --comment=auto_perception
 ### 执行您的程序批处理命令，例如：
 export PATH=/opt/app/anaconda3/bin:$PATH
 source ~/.bashrc
-export LD_LIBRARY_PATH=/home/feng/anaconda3/lib:$LD_LIBRARY_PATH
-source  ~/.bash_profile
+export LD_LIBRARY_PATH=/home/um202170407/.conda/envs/py37-gpu/lib:$LD_LIBRARY_PATH
+source ~/.bash_profile
 
 conda activate py37-gpu
-conda install pycairo
 
-nvidia-smi
 cd /home/um202170407/zhouyf/CodeResp/ImageClassify/
 python3 main.py

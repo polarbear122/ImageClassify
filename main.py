@@ -6,11 +6,14 @@ import torch.backends.cudnn as cudnn
 import torch.optim
 from matplotlib import pyplot as plt
 from torch import optim
+import time
 
 from generate_my_dataset import generate_dataset
 from log_config.log import logger as Log
 from models import *
 from models.CNNLSTM.rnnbox import CNNLSTM_init
+from models.encoder_decoder.REDCNN import RED_CNN_init
+from models.encoder_decoder.dense_block import DenseBlock_init
 from utils import progress_bar
 
 train_loss_list, test_loss_list = [0], [0]
@@ -88,7 +91,7 @@ def test(__epoch, __test_loader, __net):
 
 
 if __name__ == "__main__":
-    ck_path = "checkpoint/CNNLSTM_init/"
+    ck_path = "checkpoint/DenseBlock_init/"
     if not os.path.exists(ck_path):
         os.mkdir(ck_path)
     parser = argparse.ArgumentParser(description='PyTorch Training')
@@ -121,7 +124,7 @@ if __name__ == "__main__":
     # net = SimpleDLA()
     # net = AttBiLSTM_init()
     # net = I3D_init()
-    net = CNNLSTM_init()
+    net = DenseBlock_init()
     print("net:", net)
     net = net.to(device)
     if device == 'cuda':
@@ -160,12 +163,15 @@ if __name__ == "__main__":
     # Data
     print('==> Preparing data..')
     # 此处修改训练数据集
+
     train_loader, test_loader = generate_dataset()
     for epoch in range(start_epoch, start_epoch + 400):
+        st = time.time()
         train(epoch, train_loader, net)
         test(epoch, test_loader, net)
         scheduler.step()
-        print(train_loss_list, "\n", train_acc_list, "\n", test_loss_list, "\n", test_acc_list)
+        end = time.time()
+        print(end - st, "秒\n", train_loss_list, "\n", train_acc_list, "\n", test_loss_list, "\n", test_acc_list)
         plt.plot(train_loss_list, marker='o')
         plt.savefig("./test/log_img/train_loss.png")
         plt.close()
