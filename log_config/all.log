@@ -26382,6 +26382,57 @@
 2022-09-03 19:51:25 - INFO - TestEpoch : 26 | Loss: 0.490 | Acc: 80.977% (5802/7165)
 2022-09-03 19:56:05 - INFO - TrainEpoch: 27 | Loss: 0.430 | Acc: 81.553% (20407/25023)
 2022-09-03 19:56:49 - INFO - TestEpoch : 27 | Loss: 0.490 | Acc: 80.977% (5802/7165)
+2022-09-04 14:11:19 - INFO - num_of_trainData:15
+2022-09-04 14:11:19 - INFO - num_of_testData:15
+2022-09-04 14:12:24 - INFO - num_of_trainData:15
+2022-09-04 14:12:24 - INFO - num_of_testData:15
+2022-09-04 14:13:07 - INFO - num_of_trainData:15
+2022-09-04 14:13:07 - INFO - num_of_testData:15
+2022-09-04 14:14:15 - INFO - num_of_trainData:15
+2022-09-04 14:14:15 - INFO - num_of_testData:15
+2022-09-04 14:17:12 - INFO - num_of_trainData:15
+2022-09-04 14:17:12 - INFO - num_of_testData:15
+2022-09-04 14:20:16 - INFO - num_of_trainData:15
+2022-09-04 14:20:16 - INFO - num_of_testData:15
+2022-09-04 14:20:19 - INFO - TrainEpoch: 0 | Loss: 0.377 | Acc: 86.667% (13/15)
+2022-09-04 14:20:21 - INFO - TestEpoch : 0 | Loss: 0.118 | Acc: 100.000% (15/15)
+2022-09-04 14:20:23 - INFO - TrainEpoch: 1 | Loss: 0.087 | Acc: 100.000% (15/15)
+2022-09-04 14:20:25 - INFO - TestEpoch : 1 | Loss: 0.056 | Acc: 100.000% (15/15)
+2022-09-04 14:22:09 - INFO - num_of_trainData:15
+2022-09-04 14:22:09 - INFO - num_of_testData:15
+2022-09-04 14:23:42 - INFO - num_of_trainData:15
+2022-09-04 14:23:42 - INFO - num_of_testData:15
+2022-09-04 14:23:45 - INFO - TrainEpoch: 0 | Loss: 0.412 | Acc: 86.667% (13/15)
+2022-09-04 14:23:47 - INFO - TestEpoch : 0 | Loss: 0.167 | Acc: 100.000% (15/15)
+2022-09-04 14:23:49 - INFO - TrainEpoch: 1 | Loss: 0.109 | Acc: 100.000% (15/15)
+2022-09-04 14:23:52 - INFO - TestEpoch : 1 | Loss: 0.068 | Acc: 100.000% (15/15)
+2022-09-04 14:23:54 - INFO - TrainEpoch: 2 | Loss: 0.054 | Acc: 100.000% (15/15)
+2022-09-04 14:25:25 - INFO - num_of_trainData:15
+2022-09-04 14:25:25 - INFO - num_of_testData:15
+2022-09-04 14:25:28 - INFO - TrainEpoch: 0 | Loss: 0.411 | Acc: 86.667% (13/15)
+2022-09-04 14:25:30 - INFO - TestEpoch : 0 | Loss: 0.172 | Acc: 100.000% (15/15)
+2022-09-04 14:25:33 - INFO - TrainEpoch: 1 | Loss: 0.115 | Acc: 100.000% (15/15)
+2022-09-04 14:25:35 - INFO - TestEpoch : 1 | Loss: 0.068 | Acc: 100.000% (15/15)
+2022-09-04 14:25:37 - INFO - TrainEpoch: 2 | Loss: 0.054 | Acc: 100.000% (15/15)
+2022-09-04 14:25:40 - INFO - TestEpoch : 2 | Loss: 0.039 | Acc: 100.000% (15/15)
+2022-09-04 14:25:42 - INFO - TrainEpoch: 3 | Loss: 0.033 | Acc: 100.000% (15/15)
+2022-09-04 14:25:44 - INFO - TestEpoch : 3 | Loss: 0.026 | Acc: 100.000% (15/15)
+2022-09-04 14:25:47 - INFO - TrainEpoch: 4 | Loss: 0.023 | Acc: 100.000% (15/15)
+2022-09-04 14:25:49 - INFO - TestEpoch : 4 | Loss: 0.019 | Acc: 100.000% (15/15)
+2022-09-04 14:25:51 - INFO - TrainEpoch: 5 | Loss: 0.017 | Acc: 100.000% (15/15)
+2022-09-04 14:25:53 - INFO - TestEpoch : 5 | Loss: 0.015 | Acc: 100.000% (15/15)
+2022-09-04 14:39:11 - INFO - num_of_trainData:15
+2022-09-04 14:39:11 - INFO - num_of_testData:15
+2022-09-04 14:39:15 - INFO - TrainEpoch: 0 | Loss: 0.401 | Acc: 100.000% (15/15)
+2022-09-04 14:39:19 - INFO - TestEpoch : 0 | Loss: 0.176 | Acc: 100.000% (15/15)
+2022-09-04 14:41:54 - INFO - num_of_trainData:15
+2022-09-04 14:41:54 - INFO - num_of_testData:15
+2022-09-04 14:41:58 - INFO - TrainEpoch: 0 | Loss: 0.446 | Acc: 86.667% (13/15)
+2022-09-04 14:42:01 - INFO - TestEpoch : 0 | Loss: 0.185 | Acc: 100.000% (15/15)
+2022-09-04 14:43:55 - INFO - num_of_trainData:15
+2022-09-04 14:43:55 - INFO - num_of_testData:15
+2022-09-04 14:43:59 - INFO - TrainEpoch: 0 | Loss: 0.433 | Acc: 86.667% (13/15)
+2022-09-04 14:44:02 - INFO - TestEpoch : 0 | Loss: 0.229 | Acc: 100.000% (15/15)
 2022-09-04 16:05:17 - INFO - num_of_trainData:18739
 2022-09-04 16:05:17 - INFO - num_of_testData:5366
 2022-09-04 16:13:16 - INFO - TrainEpoch: 0 | Loss: 0.448 | Acc: 80.709% (15124/18739)
@@ -26404,3 +26455,41 @@
 2022-09-04 16:32:59 - INFO - TestEpoch : 6 | Loss: 0.488 | Acc: 80.936% (4343/5366)
 2022-09-04 16:34:02 - INFO - TrainEpoch: 7 | Loss: 0.513 | Acc: 79.407% (14880/18739)
 2022-09-04 16:34:14 - INFO - TestEpoch : 7 | Loss: 0.488 | Acc: 80.936% (4343/5366)
+2022-09-04 19:47:36 - INFO - num_of_trainData:15
+2022-09-04 19:47:36 - INFO - num_of_testData:15
+2022-09-04 19:48:43 - INFO - num_of_trainData:15
+2022-09-04 19:48:43 - INFO - num_of_testData:15
+2022-09-04 19:50:00 - INFO - num_of_trainData:15
+2022-09-04 19:50:00 - INFO - num_of_testData:15
+2022-09-04 19:50:47 - INFO - num_of_trainData:15
+2022-09-04 19:50:47 - INFO - num_of_testData:15
+2022-09-04 19:51:15 - INFO - num_of_trainData:15
+2022-09-04 19:51:15 - INFO - num_of_testData:15
+2022-09-04 19:58:25 - INFO - num_of_trainData:15
+2022-09-04 19:58:25 - INFO - num_of_testData:15
+2022-09-04 20:02:23 - INFO - num_of_trainData:15
+2022-09-04 20:02:23 - INFO - num_of_testData:15
+2022-09-04 20:04:45 - INFO - num_of_trainData:15
+2022-09-04 20:04:45 - INFO - num_of_testData:15
+2022-09-04 20:06:10 - INFO - num_of_trainData:15
+2022-09-04 20:06:10 - INFO - num_of_testData:15
+2022-09-04 20:08:00 - INFO - num_of_trainData:15
+2022-09-04 20:08:00 - INFO - num_of_testData:15
+2022-09-04 20:09:03 - INFO - num_of_trainData:15
+2022-09-04 20:09:03 - INFO - num_of_testData:15
+2022-09-04 20:09:58 - INFO - num_of_trainData:15
+2022-09-04 20:09:58 - INFO - num_of_testData:15
+2022-09-04 20:11:16 - INFO - num_of_trainData:15
+2022-09-04 20:11:16 - INFO - num_of_testData:15
+2022-09-04 20:12:54 - INFO - num_of_trainData:15
+2022-09-04 20:12:54 - INFO - num_of_testData:15
+2022-09-04 20:14:01 - INFO - num_of_trainData:15
+2022-09-04 20:14:01 - INFO - num_of_testData:15
+2022-09-04 20:16:55 - INFO - num_of_trainData:15
+2022-09-04 20:16:55 - INFO - num_of_testData:15
+2022-09-04 20:18:24 - INFO - num_of_trainData:15
+2022-09-04 20:18:24 - INFO - num_of_testData:15
+2022-09-04 21:01:03 - INFO - num_of_trainData:15
+2022-09-04 21:01:03 - INFO - num_of_testData:15
+2022-09-05 14:59:59 - INFO - num_of_trainData:15
+2022-09-05 14:59:59 - INFO - num_of_testData:15

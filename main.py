@@ -31,6 +31,7 @@ def train(__epoch, __train_loader, __net):
         inputs, targets = inputs.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = __net(inputs)
+        print("outputs,targets", outputs.shape, targets.shape)
         loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()

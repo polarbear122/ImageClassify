@@ -34,7 +34,7 @@ class Transition(nn.Module):
 
 
 class DenseNet(nn.Module):
-    def __init__(self, block, nblocks, growth_rate=12, reduction=0.5, num_classes=2):
+    def __init__(self, block, nblocks, growth_rate=12, reduction=0.5, num_classes=10):
         super(DenseNet, self).__init__()
         self.growth_rate = growth_rate
 
@@ -63,8 +63,8 @@ class DenseNet(nn.Module):
         num_planes += nblocks[3] * growth_rate
 
         self.bn = nn.BatchNorm2d(num_planes)
-        # self.linear = nn.Linear(num_planes, num_classes)
-        self.linear = nn.Linear(9216, num_classes)
+        self.linear = nn.Linear(num_planes, num_classes)
+        # self.linear = nn.Linear(9216, num_classes)
 
     def _make_dense_layers(self, block, in_planes, nblock):
         layers = []
@@ -79,7 +79,7 @@ class DenseNet(nn.Module):
         out = self.trans2(self.dense2(out))
         out = self.trans3(self.dense3(out))
         out = self.dense4(out)
-        out = F.avg_pool2d(F.relu(self.bn(out)), 2)
+        out = F.avg_pool2d(F.relu(self.bn(out)), 4)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
