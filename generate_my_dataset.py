@@ -208,7 +208,7 @@ class MyDataset(Dataset):  # 创建自己的类：MyDataset,这个类是继承�
     def load_one_face_img(self, path, label):
         path_split = path.split('*')
         img_name = path_split[0]
-        img_size_width, img_size_height = 50, 50
+        img_size_width, img_size_height = 64, 64
         # print(img_name)
         raw_img = cv2.imread(img_name)
         # print("raw_img", raw_img.shape)

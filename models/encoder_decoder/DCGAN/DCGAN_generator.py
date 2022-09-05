@@ -30,15 +30,19 @@ class DCGAN(nn.Module):
         self.dec1 = Deconv2d(1 * self.nch_ker, 1 * self.nch_out, kernel_size=4, stride=2, padding=1, bias=False)
 
     def forward(self, x):
-
+        print("x shape", x.shape)
         x = self.dec5(x)
+        print("dec5 shape", x.shape)
         x = self.dec4(x)
+        print("dec4 shape", x.shape)
         x = self.dec3(x)
+        print("dec3 shape", x.shape)
         x = self.dec2(x)
+        print("dec2 shape", x.shape)
         x = self.dec1(x)
-
+        print("dec1 shape", x.shape)
         x = torch.tanh(x)
-
+        print("tach shape", x.shape)
         return x
 
 

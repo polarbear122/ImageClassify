@@ -34,7 +34,7 @@ class Discriminator(nn.Module):
             nn.Sigmoid()
         )
         # self.linear = nn.Linear(4, 1)
-        self.squeeze = torch.squeeze
+        # self.squeeze = torch.squeeze
 
     def forward(self, x):
         print("0", x.shape)
@@ -48,6 +48,6 @@ class Discriminator(nn.Module):
         print("4", x.shape)
         x = self.t5(x)
         print("5", x.shape)
-        x = self.squeeze(x)
-        print("6", x.shape)
+        # x = self.squeeze(x)
+        # print("6", x.shape)
         return x  # output of discriminator
