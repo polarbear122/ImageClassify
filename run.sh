@@ -28,5 +28,5 @@ source ~/.bash_profile
 
 conda activate py37-gpu
 
-cd /home/um202170407/zhouyf/CodeResp/ImageClassify/
-python3 main.py
+cd /home/um202170407/zhouyf/CodeResp/ImageClassify/cifar-data
+python3 test_cifar.py

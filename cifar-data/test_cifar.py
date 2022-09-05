@@ -4,10 +4,13 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
+import sys
 
+print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.extend(['/home/um202170407/zhouyf/CodeResp/ImageClassify/'])
 import torchvision
 import torchvision.transforms as transforms
-
+from log_config.log import logger as Log
 import os
 import argparse
 
@@ -37,7 +40,8 @@ def train(epoch):
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
-
+    Log.info("TrainEpoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
+             (epoch, train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
 
 def test(epoch):
     global best_acc
@@ -58,7 +62,8 @@ def test(epoch):
 
             progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                          % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
-
+    Log.info("TestEpoch: %d | Loss: %.3f | Acc: %.3f%% (%d/%d)" %
+             (epoch, test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
     # Save checkpoint.
     acc = 100. * correct / total
     if acc > best_acc:
